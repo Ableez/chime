@@ -1,23 +1,31 @@
 import { useRouter } from "expo-router";
-import { Asterisk, View } from "lucide-react-native";
+import { Asterisk } from "lucide-react-native";
 import React from "react";
-import { TouchableWithoutFeedback } from "react-native";
+import { TouchableWithoutFeedback, View } from "react-native";
 import { useTheme } from "react-native-paper";
 
-const AsteriskIcon = () => {
+type Props = {
+  size?: number;
+};
+const AsteriskIcon = ({ size }: Props) => {
   const { colors, dark } = useTheme();
   const router = useRouter();
 
   return (
-    <TouchableWithoutFeedback onPress={() => router.navigate("/")}>
+    <TouchableWithoutFeedback
+      onPress={() => router.navigate("/")}
+      style={{ width: "100%", borderWidth: 1, borderColor: "#222" }}
+    >
       <View
         style={{
           alignContent: "center",
           justifyContent: "center",
           alignItems: "center",
-          flex: 1,
+          width: "100%",
         }}
-      ></View>
+      >
+        <Asterisk size={size ?? 84} color={colors.onBackground} />
+      </View>
     </TouchableWithoutFeedback>
   );
 };

@@ -1,34 +1,21 @@
-import { useAuth, useSession } from "@clerk/clerk-expo";
-import { Link, Slot, Stack, useRouter } from "expo-router";
-import { Rows, XIcon } from "lucide-react-native";
+import { useAuth } from "@clerk/clerk-expo";
+import { Slot, useRouter } from "expo-router";
+import { XIcon } from "lucide-react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Alert,
-  Image,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Animated,
-} from "react-native";
+import { Image, Pressable, StyleSheet, Animated } from "react-native";
 import { View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import { BlurView } from "expo-blur";
-import BottomSheet, {
-  BottomSheetModal,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 
 const Screen = () => {
-  const { userId, isLoaded } = useAuth();
-  const { isSignedIn, session } = useSession();
+  const { userId, isLoaded, isSignedIn } = useAuth();
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [showTopBanner, setShowTopBanner] = useState(false);
   const { colors, dark } = useTheme();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const router = useRouter();
   const topBannerHeight = useRef(new Animated.Value(0)).current;
-
-  console.log("SESSION", isSignedIn);
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {

@@ -14,9 +14,24 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 import * as SecureStore from "expo-secure-store";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { AppState, Platform } from "react-native";
+import type { AppStateStatus } from "react-native";
+import {
+  focusManager,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient();
+
+function onAppStateChange(status: AppStateStatus) {
+  if (Platform.OS !== "web") {
+    focusManager.setFocused(status === "active");
+  }
+}
 
 const tokenCache = {
   async getToken(key: string) {
@@ -45,7 +60,7 @@ const tokenCache = {
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    SpaceMono: require("../assets/fonts/PlusJakartaSans-VariableFont_wght.ttf"),
+    OpenSans: require("@/assets/fonts/OpenSans.ttf"),
   });
 
   const colorScheme = useColorScheme();
@@ -69,6 +84,12 @@ export default function RootLayout() {
     }
   }, [fontsLoaded]);
 
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", onAppStateChange);
+
+    return () => subscription.remove();
+  }, []);
+
   if (!fontsLoaded) {
     return null;
   }
@@ -77,56 +98,61 @@ export default function RootLayout() {
   // console.log("MIGRATION ERROR", error);
 
   return (
-    <ClerkProvider
-      tokenCache={tokenCache}
-      publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY as string}
-    >
-      <ClerkLoaded>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <PaperProvider
-            theme={paperTheme}
-            settings={{
-              rippleEffectEnabled: true,
-            }}
-          >
-            <BottomSheetModalProvider>
-              <Stack
-                screenOptions={{
-                  animationTypeForReplace: "pop",
-                  animation: "slide_from_right",
-                  headerShadowVisible: false,
-                  headerBackTitleVisible: false,
-                  statusBarAnimation: "slide",
-                  headerTitle: "",
-                  customAnimationOnGesture: true,
-                }}
-              >
-                <Stack.Screen
-                  name="(tabs)"
-                  options={{
-                    headerShown: false,
-                  }}
-                />
-                <Stack.Screen name="+not-found" />
-                <Stack.Screen
-                  name="chats-screen/index"
-                  options={{
-                    headerShown: true,
-                    headerTitle: "Chat",
-                    animation: "slide_from_right",
-                    headerBackButtonMenuEnabled: true,
-                    gestureDirection: "horizontal",
-                    animationTypeForReplace: "pop",
-                    gestureEnabled: true,
+    <QueryClientProvider client={queryClient}>
+      <ClerkProvider
+        tokenCache={tokenCache}
+        publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY as string}
+      >
+        <ClerkLoaded>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <PaperProvider
+              theme={paperTheme}
+              settings={{
+                rippleEffectEnabled: true,
+              }}
+            >
+              <BottomSheetModalProvider>
+                <Stack
+                  screenOptions={{
+                    animationTypeForReplace: "push",
+                    animation: "default",
+                    headerShadowVisible: false,
+                    headerBackTitleVisible: false,
+                    statusBarAnimation: "slide",
+                    headerTitle: "",
                     customAnimationOnGesture: true,
-                    animationDuration: 50,
+                    animationDuration: 100,
+                    gestureEnabled: true,
+                    gestureDirection: "horizontal",
                   }}
-                />
-              </Stack>
-            </BottomSheetModalProvider>
-          </PaperProvider>
-        </GestureHandlerRootView>
-      </ClerkLoaded>
-    </ClerkProvider>
+                >
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{
+                      headerShown: false,
+                    }}
+                  />
+                  <Stack.Screen name="+not-found" />
+                  <Stack.Screen
+                    name="chats-screen/index"
+                    options={{
+                      headerShown: true,
+                      headerTitle: "Chat",
+                      animation: "slide_from_right",
+                      headerBackButtonMenuEnabled: true,
+                      gestureDirection: "horizontal",
+                      animationTypeForReplace: "pop",
+                      gestureEnabled: true,
+                      customAnimationOnGesture: true,
+                      animationDuration: 50,
+                    }}
+                  />
+                </Stack>
+              </BottomSheetModalProvider>
+            </PaperProvider>
+          </GestureHandlerRootView>
+        </ClerkLoaded>
+      </ClerkProvider>
+    </QueryClientProvider>
   );
 }

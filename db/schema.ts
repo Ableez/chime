@@ -1,9 +1,7 @@
 import {
-  sqliteTable,
   text,
   integer,
   blob,
-  SQLiteTableWithColumns,
   sqliteTableCreator,
 } from "drizzle-orm/sqlite-core";
 import { relations, sql } from "drizzle-orm";

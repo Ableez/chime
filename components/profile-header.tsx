@@ -56,7 +56,11 @@ const ProfileHeader = (props: Props) => {
         >
           <BellIcon size={24} color={colors.onBackground} />
         </Pressable>
-        <Pressable onPress={() => console.log("New Chat")}>
+        <Pressable
+          onPress={() => {
+            router.push("/profile-menu-drawer");
+          }}
+        >
           <AlignRight size={24} strokeWidth={2.6} color={colors.onBackground} />
         </Pressable>
       </View>

@@ -1,3 +1,5 @@
+import { drizzle } from "drizzle-orm/sqlite-proxy";
+
 type TokenCache = {
   getToken: (key: string) => Promise<string | undefined | null>;
   saveToken: (key: string, token: string) => Promise<void>;
@@ -68,3 +70,8 @@ interface SignUpResource extends ClerkResource {
     params?: SignUpAuthenticateWithMetamaskParams
   ) => Promise<SignUpResource>;
 }
+
+export type Database = {
+  localDB: ExpoSQLiteDatabase<Record<string, never>>;
+  remoteDB: PostgresJsDatabase<typeof remoteSchema>;
+};

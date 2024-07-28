@@ -2,35 +2,30 @@ import { ThemedView } from "@/components/ThemedView";
 import AsteriskIcon from "@/components/asterisk";
 import PostItem from "@/components/post-item";
 import ProfileHeader from "@/components/profile-header";
+import SignoutSheet from "@/components/signout-sheet";
 import Button from "@/components/ui/button";
 import { currentUser } from "@/utils/mockAuth";
 import { postData } from "@/utils/new-data";
 import { PostType } from "@/utils/th";
-import { UserType, users } from "@/utils/user";
+import { UserType } from "@/utils/user";
 import { useAuth, useSession, useUser } from "@clerk/clerk-expo";
-import BottomSheet, {
-  BottomSheetBackdrop,
+import {
   BottomSheetModal,
   BottomSheetTextInput,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import { Redirect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { ArrowLeft, Asterisk } from "lucide-react-native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
+  Alert,
   Dimensions,
   FlatList,
-  Image,
   Pressable,
-  TextInput,
+  StyleSheet,
   View,
 } from "react-native";
-import {
-  ActivityIndicator,
-  Snackbar,
-  Text,
-  useTheme,
-} from "react-native-paper";
+import { Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type Props = {};
@@ -42,25 +37,15 @@ const ProfileScreen = (props: Props) => {
   const { dark } = useTheme();
   const { signOut } = useAuth();
   const { user } = useUser();
-  const [collectUserInfo, setCollectUserInfo] = useState(false);
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
-  const [sheetIndex, setSheetIndex] = useState(2);
-
-  useEffect(() => {
-    if (!user?.firstName && !user?.lastName && !user?.username) {
-      setCollectUserInfo(true);
-      bottomSheetRef.current?.present();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isSignedIn) {
-      <Snackbar visible onDismiss={() => ""}>
-        <Text>You need to login first</Text>
-      </Snackbar>;
-      return router.navigate("/login");
-    }
-  }, []);
+  // const [collectUserInfo, setCollectUserInfo] = useState(false);
+  const personaDetailsRef = useRef<BottomSheetModal>(null);
+  const [sheetIndex, setSheetIndex] = useState(-1);
+  const [personalDetails, setPersonalDetails] = useState({
+    username: "",
+    firstName: "",
+    lastName: "",
+  });
+  const [bio, setBio] = useState("");
 
   const keyExtractor = (item: PostType) => item.id + "_POST-ITEM";
 
@@ -72,7 +57,116 @@ const ProfileScreen = (props: Props) => {
     []
   );
 
-  const handleSheetChanges = useCallback(() => {}, []);
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log("handleSheetChanges", index);
+  }, []);
+
+  const isPersonalDetailsComplete = () => {
+    return (
+      personalDetails.username &&
+      personalDetails.firstName &&
+      personalDetails.lastName
+    );
+  };
+
+  const isBioComplete = () => {
+    return bio.trim().length > 0;
+  };
+
+  const handleNext = () => {
+    if (sheetIndex === -1 && isPersonalDetailsComplete()) {
+      setSheetIndex(0);
+    } else if (sheetIndex === 0 && isBioComplete()) {
+      Alert.alert(
+        "Profile Updated",
+        "Your profile has been successfully updated."
+      );
+    }
+  };
+
+  const renderPersonalDetails = () => (
+    <View style={{ gap: 48 }}>
+      <View>
+        <Text
+          variant="headlineLarge"
+          style={{ fontWeight: "800", textAlign: "center" }}
+        >
+          Edit Profile
+        </Text>
+        <Text variant="bodyMedium" style={{ textAlign: "center" }}>
+          Customize your Asterisk profile
+        </Text>
+      </View>
+      <View>
+        <View style={[styles.inputContainer, styles.firstInputContainer]}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.label}>Username</Text>
+            <BottomSheetTextInput
+              style={styles.input}
+              cursorColor={"#000"}
+              placeholder="@ableez"
+              value={personalDetails.username}
+              onChangeText={(text) =>
+                setPersonalDetails({ ...personalDetails, username: text })
+              }
+            />
+          </View>
+          <Asterisk size={32} color={dark ? "#ccc" : "#999"} />
+        </View>
+        <View style={styles.inputContainer}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.label}>Firstname</Text>
+            <BottomSheetTextInput
+              style={styles.input}
+              cursorColor={"#000"}
+              placeholder="Abdullahi"
+              value={personalDetails.firstName}
+              onChangeText={(text) =>
+                setPersonalDetails({ ...personalDetails, firstName: text })
+              }
+            />
+          </View>
+        </View>
+        <View style={[styles.inputContainer, styles.lastInputContainer]}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.label}>Lastname</Text>
+            <BottomSheetTextInput
+              style={styles.input}
+              cursorColor={"#000"}
+              placeholder="Ahmed"
+              value={personalDetails.lastName}
+              onChangeText={(text) =>
+                setPersonalDetails({ ...personalDetails, lastName: text })
+              }
+            />
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderBio = () => (
+    <View>
+      <View style={[styles.inputContainer, { borderRadius: 16 }]}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.label}>Bio</Text>
+          <BottomSheetTextInput
+            style={styles.input}
+            cursorColor={"#000"}
+            multiline
+            numberOfLines={3}
+            placeholder="Tell us a little about yourself"
+            value={bio}
+            onChangeText={setBio}
+          />
+        </View>
+      </View>
+    </View>
+  );
+
+  const isButtonDisabled = () => {
+    return sheetIndex === -1 ? !isPersonalDetailsComplete() : !isBioComplete();
+  };
 
   if (!isSignedIn) {
     return (
@@ -80,11 +174,9 @@ const ProfileScreen = (props: Props) => {
         <ThemedView
           style={{
             height: Dimensions.get("window").height,
-            alignContent: "center",
-            alignItems: "center",
-            justifyContent: "center",
             padding: 16,
             gap: 24,
+            paddingTop: 84,
           }}
         >
           <AsteriskIcon />
@@ -95,202 +187,100 @@ const ProfileScreen = (props: Props) => {
             Sign in to your account
           </Text>
 
-          <View
-            style={{
-              borderRadius: 20,
-              overflow: "hidden",
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
+          <Button
+            onPress={() => {
+              router.navigate("/login");
+              signOut();
             }}
-          >
-            <Pressable
-              android_ripple={{
-                color: dark ? "#ddd" : "#009eed",
-              }}
-              style={{
-                backgroundColor: dark ? "#fff" : "#007eed",
-                borderRadius: 20,
-                width: "100%",
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                overflow: "hidden",
-                height: 50,
-                alignContent: "center",
-              }}
-              onPress={() => {
-                router.navigate("/login");
-                signOut();
-              }}
-            >
-              <Text
-                variant="titleSmall"
-                style={{ color: dark ? "#000" : "#fff" }}
-              >
-                Sign In
-              </Text>
-            </Pressable>
-          </View>
+            title="Sign in"
+            style={{ marginTop: 32 }}
+          />
         </ThemedView>
       </SafeAreaView>
     );
   }
 
-  return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <BottomSheetModal
-        ref={bottomSheetRef}
-        index={0}
-        snapPoints={["80", "95"]}
-        onChange={handleSheetChanges}
-        animateOnMount={true}
-        enablePanDownToClose={false}
-      >
-        <BottomSheetView tabIndex={0}>
-          <View style={{ gap: 48, padding: 16, paddingTop: 42 }}>
-            <View
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 6,
-              }}
-            >
-              <Asterisk
-                size={80}
-                strokeWidth={2.6}
-                color={dark ? "#fff" : "#000"}
+  if (!user?.firstName && !user?.lastName && !user?.username) {
+    return (
+      <SafeAreaView>
+        <BottomSheetModal
+          ref={personaDetailsRef}
+          animationConfigs={{
+            mass: 0.4,
+          }}
+          index={0}
+          snapPoints={["90%", "95%"]}
+          onChange={handleSheetChanges}
+          animateOnMount={true}
+          enablePanDownToClose={true}
+          style={styles.bottomSheet}
+          footerComponent={() => {
+            return sheetIndex === 0 ? (
+              <Pressable
+                onPress={() => setSheetIndex(-1)}
+                style={styles.backButton}
+              >
+                <ArrowLeft size={20} color={"#333"} />
+              </Pressable>
+            ) : null;
+          }}
+        >
+          <BottomSheetView style={{ flex: 1 }}>
+            <View style={styles.container}>
+              <View style={styles.iconContainer}>
+                <Asterisk
+                  size={80}
+                  strokeWidth={2.6}
+                  color={dark ? "#fff" : "#000"}
+                />
+              </View>
+
+              {sheetIndex === -1 ? renderPersonalDetails() : null}
+              {sheetIndex === 0 ? renderBio() : null}
+
+              <Button
+                onPress={handleNext}
+                disabled={isButtonDisabled()}
+                style={{
+                  opacity: isButtonDisabled() ? 0.4 : 1,
+                }}
+                title={sheetIndex === -1 ? "Next" : "Submit"}
               />
             </View>
+          </BottomSheetView>
+        </BottomSheetModal>
 
-            {sheetIndex === 0 ? (
-              <View style={{ gap: 48 }}>
-                <View>
-                  <Text
-                    variant="headlineLarge"
-                    style={{ fontWeight: "800", textAlign: "center" }}
-                  >
-                    Edit Profile
-                  </Text>
-                  <Text variant="bodyMedium" style={{ textAlign: "center" }}>
-                    Customize your Asterisk profile
-                  </Text>
-                </View>
-                <View>
-                  <View
-                    style={{
-                      paddingHorizontal: 18,
-                      paddingVertical: 14,
-                      borderWidth: 0.4,
-                      borderColor: "#ccc",
-                      borderTopLeftRadius: 16,
-                      borderTopRightRadius: 16,
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ color: "#444" }} variant="labelSmall">
-                        Name
-                      </Text>
-                      <BottomSheetTextInput
-                        style={{ fontSize: 17 }}
-                        cursorColor={"#000"}
-                        placeholder="@ableez"
-                      />
-                    </View>
-                    <Asterisk size={32} color={dark ? "#ccc" : "#999"} />
-                  </View>
-                  <View
-                    style={{
-                      paddingHorizontal: 18,
-                      paddingVertical: 14,
-                      borderWidth: 0.4,
-                      borderColor: "#ccc",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ color: "#444" }} variant="labelSmall">
-                        Firstname
-                      </Text>
-                      <BottomSheetTextInput
-                        style={{ fontSize: 17 }}
-                        cursorColor={"#000"}
-                        placeholder="Abdullahi"
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      paddingHorizontal: 18,
-                      paddingVertical: 14,
-                      borderWidth: 0.4,
-                      borderColor: "#ccc",
-                      borderBottomLeftRadius: 16,
-                      borderBottomRightRadius: 16,
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ color: "#444" }} variant="labelSmall">
-                        Lastname
-                      </Text>
-                      <BottomSheetTextInput
-                        style={{ fontSize: 17 }}
-                        cursorColor={"#000"}
-                        placeholder="Ahmed"
-                      />
-                    </View>
-                  </View>
-                </View>
-              </View>
-            ) : (
-              <View>
-                <View
-                  style={{
-                    paddingHorizontal: 18,
-                    paddingVertical: 14,
-                    borderWidth: 0.4,
-                    borderColor: "#ccc",
-                    borderRadius: 16,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ color: "#444" }} variant="labelSmall">
-                      Bio
-                    </Text>
-                    <BottomSheetTextInput
-                      style={{ fontSize: 17 }}
-                      cursorColor={"#000"}
-                      multiline
-                      numberOfLines={3}
-                      placeholder="Tell us a little about yourself"
-                    />
-                  </View>
-                </View>
-              </View>
-            )}
+        <ThemedView
+          style={{
+            padding: 16,
+            height: Dimensions.get("window").height,
+            alignContent: "center",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 54,
+          }}
+        >
+          <Text>{user?.emailAddresses[0]?.emailAddress}</Text>
+          <Text
+            variant="headlineLarge"
+            style={{ fontWeight: "700", textAlign: "center" }}
+          >
+            You're new here, finish setting up your profile
+          </Text>
+          <Button
+            title="Create profile"
+            onPress={() => personaDetailsRef.current?.present()}
+          />
 
-            <Button title={"Next"} onPress={() => setSheetIndex(-1)} />
-            {sheetIndex === -1 ? (
-              <Pressable style={{ padding: 8, borderRadius: 24 }}>
-                <ArrowLeft size={24} color={"#333"} />
-              </Pressable>
-            ) : null}
+          <View style={{ marginTop: 62, width: "100%" }}>
+            <SignoutSheet />
           </View>
-        </BottomSheetView>
-      </BottomSheetModal>
-
+        </ThemedView>
+      </SafeAreaView>
+    );
+  }
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
       <ThemedView
         style={{
           flex: 1,
@@ -325,3 +315,52 @@ const ProfileScreen = (props: Props) => {
 };
 
 export default ProfileScreen;
+
+const styles = StyleSheet.create({
+  bottomSheet: {
+    backgroundColor: "#222",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+  },
+  container: {
+    gap: 38,
+    padding: 16,
+    paddingTop: 42,
+  },
+  iconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  inputContainer: {
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderWidth: 0.4,
+    borderColor: "#ccc",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  lastInputContainer: {
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+  },
+  firstInputContainer: {
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  label: {
+    color: "#444",
+    fontSize: 12,
+  },
+  input: {
+    fontSize: 17,
+  },
+  backButton: {
+    padding: 12,
+    borderRadius: 100,
+    position: "absolute",
+    top: 8,
+    left: 16,
+    backgroundColor: "#fff",
+  },
+});

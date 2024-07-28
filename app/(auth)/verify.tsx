@@ -64,11 +64,11 @@ const VerifyEmail = (props: Props) => {
     fn();
   }, []);
 
-  useEffect(() => {
-    if (signUp?.status === null || signUp?.status === "abandoned") {
-      return router.back();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (signUp?.status === null || signUp?.status === "abandoned") {
+  //     return router.back();
+  //   }
+  // }, []);
 
   const onPressVerify = async () => {
     if (!isLoaded) return;
@@ -126,107 +126,107 @@ const VerifyEmail = (props: Props) => {
     }
   }, [isLoaded, signUp, resendTimer]);
 
-//   return (
-//     <View>
-//       <ThemedView style={{ padding: 16, gap: 24 }}>
-//         <View>
-//           <Text variant="displayMedium" style={{ fontWeight: "600" }}>
-//             6-digit code
-//           </Text>
-//           <Text variant="bodyMedium">
-//             Please enter the code we've sent to{" "}
-//             <Text variant="labelLarge">{emailAddress}</Text> to confirm your
-//             account
-//           </Text>
-//         </View>
-//         <TextInput
-//           value={code}
-//           placeholder="123456"
-//           onChangeText={setCode}
-//           keyboardType="number-pad"
-//           style={{
-//             height: 54,
-//             paddingHorizontal: 16,
-//             borderWidth: 0.4,
-//             borderColor: "#ccc",
-//             fontSize: 24,
-//             letterSpacing: 10,
-//             borderRadius: 16,
-//             width: "100%",
-//           }}
-//         />
-//         <View
-//           style={{
-//             borderRadius: 20,
-//             overflow: "hidden",
-//             width: "100%",
-//           }}
-//         >
-//           <Pressable
-//             android_ripple={{ color: dark ? "#ddd" : "#009eed" }}
-//             style={{
-//               backgroundColor: dark ? "#fff" : "#007eed",
-//               borderRadius: 20,
-//               width: "100%",
-//               height: 50,
-//               justifyContent: "center",
-//               alignItems: "center",
-//               opacity: loading ? 0.7 : 1,
-//             }}
-//             onPress={onPressVerify}
-//             disabled={loading}
-//           >
-//             {loading ? (
-//               <ActivityIndicator color="#fff" animating={true} />
-//             ) : (
-//               <Text
-//                 variant="titleSmall"
-//                 style={{ color: dark ? "#000" : "#fff" }}
-//               >
-//                 Confirm
-//               </Text>
-//             )}
-//           </Pressable>
-//         </View>
-//         <Text variant="bodyMedium" style={{ marginTop: 20 }}>
-//           Didn't receive the code?
-//         </Text>
-//         <View
-//           style={{
-//             borderRadius: 20,
-//             overflow: "hidden",
-//             width: "100%",
-//           }}
-//         >
-//           <Pressable
-//             android_ripple={{ color: dark ? "#333" : "#ddd" }}
-//             style={{
-//               backgroundColor: dark ? "#000" : "#fff",
-//               borderRadius: 20,
-//               width: "100%",
-//               height: 50,
-//               justifyContent: "center",
-//               alignItems: "center",
-//               borderWidth: 1,
-//               borderColor: dark ? "#333" : "#EDF1FF",
-//               opacity: resendTimer > 0 || loading ? 0.5 : 1,
-//             }}
-//             onPress={handleResendCode}
-//             disabled={resendTimer > 0 || loading}
-//           >
-//             <Text
-//               variant="titleSmall"
-//               style={{ color: dark ? "#fff" : "#000" }}
-//             >
-//               {resendTimer > 0
-//                 ? `Resend code (${resendTimer}s)`
-//                 : "Resend code"}
-//             </Text>
-//           </Pressable>
-//         </View>
-//       </ThemedView>
-//     </View>
-//   );
+  //   return (
+  //     <View>
+  //       <ThemedView style={{ padding: 16, gap: 24 }}>
+  //         <View>
+  //           <Text variant="displayMedium" style={{ fontWeight: "600" }}>
+  //             6-digit code
+  //           </Text>
+  //           <Text variant="bodyMedium">
+  //             Please enter the code we've sent to{" "}
+  //             <Text variant="labelLarge">{emailAddress}</Text> to confirm your
+  //             account
+  //           </Text>
+  //         </View>
+  //         <TextInput
+  //           value={code}
+  //           placeholder="123456"
+  //           onChangeText={setCode}
+  //           keyboardType="number-pad"
+  //           style={{
+  //             height: 54,
+  //             paddingHorizontal: 16,
+  //             borderWidth: 0.4,
+  //             borderColor: "#ccc",
+  //             fontSize: 24,
+  //             letterSpacing: 10,
+  //             borderRadius: 16,
+  //             width: "100%",
+  //           }}
+  //         />
+  //         <View
+  //           style={{
+  //             borderRadius: 20,
+  //             overflow: "hidden",
+  //             width: "100%",
+  //           }}
+  //         >
+  //           <Pressable
+  //             android_ripple={{ color: dark ? "#ddd" : "#009eed" }}
+  //             style={{
+  //               backgroundColor: dark ? "#fff" : "#007eed",
+  //               borderRadius: 20,
+  //               width: "100%",
+  //               height: 50,
+  //               justifyContent: "center",
+  //               alignItems: "center",
+  //               opacity: loading ? 0.7 : 1,
+  //             }}
+  //             onPress={onPressVerify}
+  //             disabled={loading}
+  //           >
+  //             {loading ? (
+  //               <ActivityIndicator color="#fff" animating={true} />
+  //             ) : (
+  //               <Text
+  //                 variant="titleSmall"
+  //                 style={{ color: dark ? "#000" : "#fff" }}
+  //               >
+  //                 Confirm
+  //               </Text>
+  //             )}
+  //           </Pressable>
+  //         </View>
+  //         <Text variant="bodyMedium" style={{ marginTop: 20 }}>
+  //           Didn't receive the code?
+  //         </Text>
+  //         <View
+  //           style={{
+  //             borderRadius: 20,
+  //             overflow: "hidden",
+  //             width: "100%",
+  //           }}
+  //         >
+  //           <Pressable
+  //             android_ripple={{ color: dark ? "#333" : "#ddd" }}
+  //             style={{
+  //               backgroundColor: dark ? "#000" : "#fff",
+  //               borderRadius: 20,
+  //               width: "100%",
+  //               height: 50,
+  //               justifyContent: "center",
+  //               alignItems: "center",
+  //               borderWidth: 1,
+  //               borderColor: dark ? "#333" : "#EDF1FF",
+  //               opacity: resendTimer > 0 || loading ? 0.5 : 1,
+  //             }}
+  //             onPress={handleResendCode}
+  //             disabled={resendTimer > 0 || loading}
+  //           >
+  //             <Text
+  //               variant="titleSmall"
+  //               style={{ color: dark ? "#fff" : "#000" }}
+  //             >
+  //               {resendTimer > 0
+  //                 ? `Resend code (${resendTimer}s)`
+  //                 : "Resend code"}
+  //             </Text>
+  //           </Pressable>
+  //         </View>
+  //       </ThemedView>
+  //     </View>
+  //   );
 };
 
 export default VerifyEmail;
