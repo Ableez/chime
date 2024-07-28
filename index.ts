@@ -11,6 +11,8 @@ const appRouter = createTRPCRouter({
 
 const app = express();
 
+console.log("APP");
+
 app.use(
   "/trpc",
   trpcExpress.createExpressMiddleware({
