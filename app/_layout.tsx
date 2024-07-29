@@ -98,11 +98,11 @@ export default function RootLayout() {
   // console.log("MIGRATION ERROR", error);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ClerkProvider
-        tokenCache={tokenCache}
-        publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY as string}
-      >
+    <ClerkProvider
+      tokenCache={tokenCache}
+      publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY as string}
+    >
+      <QueryClientProvider client={queryClient}>
         <ClerkLoaded>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <PaperProvider
@@ -123,7 +123,6 @@ export default function RootLayout() {
                     customAnimationOnGesture: true,
                     animationDuration: 100,
                     gestureEnabled: true,
-                    gestureDirection: "horizontal",
                   }}
                 >
                   <Stack.Screen
@@ -144,7 +143,15 @@ export default function RootLayout() {
                       animationTypeForReplace: "pop",
                       gestureEnabled: true,
                       customAnimationOnGesture: true,
-                      animationDuration: 50,
+                    }}
+                  />
+                  <Stack.Screen
+                    name="edit-profile"
+                    options={{
+                      headerShown: false,
+                      headerTitle: "Chat",
+                      animation: "slide_from_bottom",
+                      headerBackButtonMenuEnabled: true,
                     }}
                   />
                 </Stack>
@@ -152,7 +159,7 @@ export default function RootLayout() {
             </PaperProvider>
           </GestureHandlerRootView>
         </ClerkLoaded>
-      </ClerkProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </ClerkProvider>
   );
 }

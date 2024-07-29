@@ -1,21 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   FlatList,
   Image,
   Pressable,
   StyleSheet,
   TouchableHighlight,
-  TouchableNativeFeedback,
   View,
 } from "react-native";
-import Button from "@/components/ui/button";
-import { Snackbar, Text, useTheme } from "react-native-paper";
-import { AlignRight, BellIcon, UserRoundCogIcon } from "lucide-react-native";
+import { Text, useTheme } from "react-native-paper";
+import { AlignRight, BellIcon } from "lucide-react-native";
 import { currentUser } from "@/utils/mockAuth";
 import { users } from "@/utils/user";
 import { Link, useRouter } from "expo-router";
 import { useAuth, useUser } from "@clerk/clerk-expo";
-import { RollInLeft } from "react-native-reanimated";
 
 type Props = {};
 
@@ -23,7 +20,6 @@ const ProfileHeader = (props: Props) => {
   const { colors, dark } = useTheme();
   const { user } = useUser();
   const { signOut } = useAuth();
-  const [showSnack, setShowSnack] = useState(false);
   const router = useRouter();
 
   const followers = currentUser.followers.map((followerId) => {
@@ -34,20 +30,6 @@ const ProfileHeader = (props: Props) => {
 
   return (
     <View style={{ backgroundColor: dark ? "#000" : "#fff" }}>
-      <Snackbar
-        visible={showSnack}
-        onDismiss={() => ""}
-        action={{
-          label: "Sign in back",
-          onPress: () => {
-            router.navigate("/login");
-          },
-        }}
-        style={{ borderRadius: 24 }}
-        duration={Snackbar.DURATION_LONG}
-      >
-        Signed out
-      </Snackbar>
       <View style={styles.header}>
         <Pressable
           onPress={async () => {
@@ -73,35 +55,41 @@ const ProfileHeader = (props: Props) => {
             justifyContent: "space-between",
           }}
         >
-          <View style={{ width: "55%" }}>
-            {user?.firstName && user.lastName ? (
+          <View
+            style={{
+              width: "58%",
+            }}
+          >
+            <Text
+              variant="titleLarge"
+              style={{ fontWeight: "700", fontSize: 30 }}
+            >
+              {user?.username}
+            </Text>
+
+            {user?.username ? (
               <Text
-                variant="titleLarge"
-                style={{ fontWeight: "700", fontSize: 28 }}
+                variant="titleMedium"
+                style={{ textTransform: "capitalize" }}
               >
                 {user?.firstName} {user?.lastName}
-              </Text>
-            ) : (
-              <Text variant="displayMedium" style={{ fontWeight: "700" }}>
-                {user?.username}
-              </Text>
-            )}
-            {!user?.firstName && !user?.lastName ? (
-              <Text variant="titleMedium" style={{ fontWeight: "700" }}>
-                {user?.username}
               </Text>
             ) : null}
           </View>
           <View>
             <Image
-              source={{ uri: currentUser.profilePicture }}
+              source={{ uri: user?.imageUrl }}
               style={{ width: 80, height: 80, borderRadius: 100 }}
             />
           </View>
         </View>
 
         <View>
-          <Text>{currentUser.bio}</Text>
+          <Text>
+            {user?.unsafeMetadata.bio
+              ? JSON.stringify(user.unsafeMetadata.bio)
+              : "No bio"}
+          </Text>
           <FlatList
             data={followers.splice(0, 3)}
             horizontal

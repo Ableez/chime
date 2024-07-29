@@ -28,8 +28,6 @@ import {
   SIGNUP_OBJECT_KEY,
 } from "@/constants/AsyncStorageKeys";
 import AsteriskIcon from "@/components/asterisk";
-import { useMutation } from "@tanstack/react-query";
-import { BACKEND_ENDPOINT } from "@/constants/Colors";
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -53,23 +51,6 @@ export default function SignUpScreen() {
     username: "",
     emailAddress: "",
     password: "",
-  });
-
-  const createUserMutation = useMutation({
-    mutationFn: (userData: {
-      userId: string;
-      email: string;
-      username: string;
-    }) => {
-      return fetch(
-        `${BACKEND_ENDPOINT}/trpc/user.createUser` ||
-          "http:localhost:4005/trpc/user.createUser",
-        {
-          method: "POST",
-          body: JSON.stringify(userData),
-        }
-      );
-    },
   });
 
   // // AsyncStorage business
@@ -128,32 +109,27 @@ export default function SignUpScreen() {
   const onSignUpPress = async () => {
     if (!isLoaded) return;
     setLoading(true);
+
     try {
-      const createUser = await signUp.create({
+      console.log("SIGN UPINGSTART");
+
+      await signUp.create({
         emailAddress: emailAddress,
         password: password,
+        username: username,
       });
 
-      createUserMutation.mutate({
-        email: emailAddress,
-        userId: createUser.id || ("user112" as string),
-        username: createUser.username || ("user112" as string),
+      console.log("SIGN UPED");
+
+      await signUp.prepareEmailAddressVerification({
+        strategy: "email_code",
       });
 
-      console.log("[CRDB]", createUserMutation);
-
-      if (createUserMutation.isSuccess) {
-        await createUser.prepareEmailAddressVerification({
-          strategy: "email_code",
-        });
-
-        // setPendingVerification(true);
-      } else {
-        Alert.alert("", "Something went wrong, please try again");
-        console.log(createUserMutation);
-      }
+      setPendingVerification(true);
     } catch (err) {
       console.error(JSON.stringify(err, null, 2));
+
+      console.log(err);
 
       if (isClerkAPIResponseError(err)) {
         err.errors.forEach((e) => {
@@ -195,14 +171,6 @@ export default function SignUpScreen() {
           PENDING_EMAIL_VERIFICATION_DATA_KEY,
           SIGNUP_OBJECT_KEY,
         ]);
-
-        const createDBuser = await createUserMutation.mutateAsync({
-          email: emailAddress,
-          userId: completeSignUp.createdUserId as string,
-          username: completeSignUp.username as string,
-        });
-
-        console.log("[CREATE USER ON DB]", createDBuser);
 
         Alert.alert("Success", "Your account has been verified!");
         router.replace("/");

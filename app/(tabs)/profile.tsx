@@ -2,7 +2,6 @@ import { ThemedView } from "@/components/ThemedView";
 import AsteriskIcon from "@/components/asterisk";
 import PostItem from "@/components/post-item";
 import ProfileHeader from "@/components/profile-header";
-import SignoutSheet from "@/components/signout-sheet";
 import Button from "@/components/ui/button";
 import { currentUser } from "@/utils/mockAuth";
 import { postData } from "@/utils/new-data";
@@ -46,6 +45,7 @@ const ProfileScreen = (props: Props) => {
     lastName: "",
   });
   const [bio, setBio] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const keyExtractor = (item: PostType) => item.id + "_POST-ITEM";
 
@@ -63,24 +63,38 @@ const ProfileScreen = (props: Props) => {
 
   const isPersonalDetailsComplete = () => {
     return (
-      personalDetails.username &&
-      personalDetails.firstName &&
-      personalDetails.lastName
+      (user?.username || personalDetails.username) &&
+      (user?.firstName || personalDetails.firstName) &&
+      (user?.lastName || personalDetails.lastName)
     );
   };
 
   const isBioComplete = () => {
     return bio.trim().length > 0;
   };
+  const handleNext = async () => {
+    try {
+      if (sheetIndex === -1 && isPersonalDetailsComplete()) {
+        setSheetIndex(0);
+      }
 
-  const handleNext = () => {
-    if (sheetIndex === -1 && isPersonalDetailsComplete()) {
-      setSheetIndex(0);
-    } else if (sheetIndex === 0 && isBioComplete()) {
-      Alert.alert(
-        "Profile Updated",
-        "Your profile has been successfully updated."
-      );
+      if (isPersonalDetailsComplete() && isBioComplete()) {
+        if (user) {
+          await user.update({
+            first_name: personalDetails.firstName,
+            last_name: personalDetails.lastName,
+          });
+          Alert.alert(
+            "Profile Updated",
+            "Your profile has been successfully updated."
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Update failed:", JSON.stringify(error));
+      Alert.alert("Error", "Failed to update profile.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -91,28 +105,30 @@ const ProfileScreen = (props: Props) => {
           variant="headlineLarge"
           style={{ fontWeight: "800", textAlign: "center" }}
         >
-          Edit Profile
+          Profile
         </Text>
         <Text variant="bodyMedium" style={{ textAlign: "center" }}>
-          Customize your Asterisk profile
+          Finish setting up your profile
         </Text>
       </View>
       <View>
-        <View style={[styles.inputContainer, styles.firstInputContainer]}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.label}>Username</Text>
-            <BottomSheetTextInput
-              style={styles.input}
-              cursorColor={"#000"}
-              placeholder="@ableez"
-              value={personalDetails.username}
-              onChangeText={(text) =>
-                setPersonalDetails({ ...personalDetails, username: text })
-              }
-            />
+        {user?.username ? null : (
+          <View style={[styles.inputContainer, styles.firstInputContainer]}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.label}>Username</Text>
+              <BottomSheetTextInput
+                style={styles.input}
+                cursorColor={"#000"}
+                placeholder="@ableez"
+                value={personalDetails.username}
+                onChangeText={(text) =>
+                  setPersonalDetails({ ...personalDetails, username: text })
+                }
+              />
+            </View>
+            <Asterisk size={32} color={dark ? "#ccc" : "#999"} />
           </View>
-          <Asterisk size={32} color={dark ? "#ccc" : "#999"} />
-        </View>
+        )}
         <View style={styles.inputContainer}>
           <View style={{ flex: 1 }}>
             <Text style={styles.label}>Firstname</Text>
@@ -200,7 +216,7 @@ const ProfileScreen = (props: Props) => {
     );
   }
 
-  if (!user?.firstName && !user?.lastName && !user?.username) {
+  if (!user?.firstName || !user?.lastName || !user?.username) {
     return (
       <SafeAreaView>
         <BottomSheetModal
@@ -272,9 +288,9 @@ const ProfileScreen = (props: Props) => {
             onPress={() => personaDetailsRef.current?.present()}
           />
 
-          <View style={{ marginTop: 62, width: "100%" }}>
+          {/* <View style={{ marginTop: 62, width: "100%" }}>
             <SignoutSheet />
-          </View>
+          </View> */}
         </ThemedView>
       </SafeAreaView>
     );

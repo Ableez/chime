@@ -5,14 +5,7 @@ import { Text, useTheme } from "react-native-paper";
 import { Icon } from "@/components/navigation/TabBarIcon";
 import { Image, Pressable, TextInput, Touchable, View } from "react-native";
 import { currentUser } from "@/utils/mockAuth";
-import {
-  EllipsisIcon,
-  Home,
-  Plus,
-  Search,
-  X,
-  XIcon,
-} from "lucide-react-native";
+import { EllipsisIcon, Home, Plus, Search, X } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedView } from "@/components/ThemedView";
 import { useSession, useUser } from "@clerk/clerk-expo";
@@ -21,6 +14,7 @@ export default function TabLayout() {
   const { colors } = useTheme();
   const { isSignedIn } = useSession();
   const [showHeader, setShowHeader] = useState(false);
+  const { user } = useUser();
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -198,7 +192,7 @@ export default function TabLayout() {
                 }}
               >
                 <Image
-                  source={{ uri: currentUser.profilePicture }}
+                  source={{ uri: user?.imageUrl ?? currentUser.profilePicture }}
                   style={{ width: 36, height: 36 }}
                 />
               </View>

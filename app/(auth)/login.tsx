@@ -45,6 +45,7 @@ export default function LoginScreen() {
       });
 
       if (signInAttempt.status === "complete") {
+        await setActive({ session: null });
         await setActive({ session: signInAttempt.createdSessionId });
         router.navigate("/");
       } else {
