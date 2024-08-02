@@ -15,6 +15,13 @@
       "when": 1722169765770,
       "tag": "0001_thin_daredevil",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1722209694547,
+      "tag": "0002_legal_beyonder",
+      "breakpoints": true
     }
   ]
 }

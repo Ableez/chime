@@ -11,7 +11,7 @@ export const users = createTable("users", {
     .primaryKey()
     .notNull()
     .$defaultFn(() => v5("asterisk_userId", ns)),
-  username: text("username").notNull().unique(),
+  username: text("username").unique(),
   email: text("email").notNull().unique(),
   firstname: text("firstname"),
   lastname: text("lastname"),
