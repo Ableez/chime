@@ -5,6 +5,18 @@ import { clerkClient } from "@clerk/clerk-sdk-node";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
+type UserFields = {
+  email: string;
+  username: string;
+  phoneNumber: string;
+  firstname: string;
+  lastname: string;
+  profilePicture: string;
+  emailVerified: boolean;
+};
+
+type PartialUserFields = Partial<UserFields>;
+
 export const userRouter = createTRPCRouter({
   updatePublicMetadata: publicProcedure
     .input(z.object({ userId: z.string(), data: z.unknown() }))
