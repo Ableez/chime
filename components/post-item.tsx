@@ -1,19 +1,17 @@
-import { EllipsisVertical } from "lucide-react-native";
+import { Ellipsis, EllipsisVertical } from "lucide-react-native";
 import React, { memo } from "react";
 import { Image, Pressable, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import PostMedia from "./post-media";
-import { MediaType, PostType } from "@/utils/th";
 import PostActions from "./post-actions";
 import { formatChatTime } from "@/utils/timeFormater";
-import { UserType } from "@/utils/user";
+import { Media, Timeline } from "@/new-types";
 
 type Props = {
-  user: UserType;
-  item: PostType;
+  item: Timeline;
 };
 
-const PostItem = memo(({ item, user }: Props) => {
+const PostItem = memo(({ item }: Props) => {
   const { colors, dark } = useTheme();
   return (
     <View
@@ -21,7 +19,7 @@ const PostItem = memo(({ item, user }: Props) => {
         paddingVertical: 12,
         borderBottomWidth: 1,
         borderBottomColor: dark ? "#222" : "#EAEAEA",
-        gap: 24,
+        gap: 18,
       }}
     >
       <View
@@ -45,7 +43,7 @@ const PostItem = memo(({ item, user }: Props) => {
             }}
           >
             <Image
-              source={{ uri: user?.profilePicture }}
+              source={{ uri: item.user.profilePicture }}
               style={{ width: 44, height: 44, borderRadius: 100 }}
             />
             <View
@@ -56,23 +54,25 @@ const PostItem = memo(({ item, user }: Props) => {
                 gap: 8,
               }}
             >
-              <Text variant="titleMedium">{user?.username}</Text>
-              <Text variant="bodySmall">{formatChatTime(item.createdAt)}</Text>
+              <Text variant="titleMedium">{item.user?.username}</Text>
+              <Text variant="bodySmall">
+                {formatChatTime(item.post.createdAt)}
+              </Text>
             </View>
           </View>
 
           <Pressable>
-            <EllipsisVertical size={18} color={colors.onBackground} />
+            <Ellipsis size={18} color={colors.onBackground} />
           </Pressable>
         </View>
-        <View style={{ paddingLeft: 54, paddingRight: 10, gap: 24 }}>
-          <Text variant="bodyMedium">
-            {item.caption?.plainText ? item.caption.plainText : "Wassup"}
-          </Text>
-        </View>
+        {item.post.postText && (
+          <View style={{ paddingLeft: 54, paddingRight: 10, gap: 24 }}>
+            <Text variant="bodyMedium">{item.post.postText}</Text>
+          </View>
+        )}
       </View>
 
-      {item.media ? <PostMedia item={item.media as MediaType[]} /> : null}
+      {item.media ? <PostMedia item={item.media as Media[]} /> : null}
       <PostActions />
     </View>
   );

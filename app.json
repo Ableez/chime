@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "asterisk",
-    "slug": "asterisk",
-    "version": "1.0.0",
+    "name": "Asterisk",
+    "slug": "expo-app",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "ios": {
@@ -69,7 +69,9 @@
       [
         "expo-font",
         {
-          "fonts": ["./assets/fonts/OpenSans.ttf"]
+          "fonts": [
+            "./assets/fonts/OpenSans.ttf"
+          ]
         }
       ]
     ],

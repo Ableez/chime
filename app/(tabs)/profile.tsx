@@ -4,11 +4,9 @@ import PostItem from "@/components/post-item";
 import ProfileHeader from "@/components/profile-header";
 import Button from "@/components/ui/button";
 import { BACKEND_ENDPOINT } from "@/constants/Colors";
+import { Timeline } from "@/new-types";
+import { usePostsStore } from "@/store/zustand";
 import { CUserPublicMetadata } from "@/type";
-import { currentUser } from "@/utils/mockAuth";
-import { postData } from "@/utils/new-data";
-import { PostType } from "@/utils/th";
-import { UserType } from "@/utils/user";
 import { useAuth, useSession, useUser } from "@clerk/clerk-expo";
 import {
   BottomSheetModal,
@@ -34,7 +32,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 type Props = {};
 
 const ProfileScreen = (props: Props) => {
-  const posts = postData.filter((p) => currentUser.posts.includes(p.id));
   const { isSignedIn } = useSession();
   const router = useRouter();
   const { dark } = useTheme();
@@ -57,12 +54,15 @@ const ProfileScreen = (props: Props) => {
     };
   }, []);
 
-  const keyExtractor = (item: PostType) => item.id + "_POST-ITEM";
+  const keyExtractor = (item: Timeline) => item.post.id + "_POST-ITEM";
+
+  const { posts: postData } = usePostsStore();
+
+  const userPosts = postData?.filter((post) => post.user.id === user?.id);
 
   const renderItems = useCallback(
-    ({ item }: { item: PostType; index: number }) => {
-      const user = currentUser;
-      return <PostItem item={item} user={user as UserType} />;
+    ({ item }: { item: Timeline; index: number }) => {
+      return <PostItem item={item} />;
     },
     []
   );
@@ -313,6 +313,7 @@ const ProfileScreen = (props: Props) => {
       </SafeAreaView>
     );
   }
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ThemedView
@@ -322,7 +323,7 @@ const ProfileScreen = (props: Props) => {
       >
         <View style={{ flex: 1 }}>
           <FlatList
-            data={posts}
+            data={userPosts}
             keyExtractor={keyExtractor}
             renderItem={renderItems}
             refreshControl={
@@ -340,7 +341,7 @@ const ProfileScreen = (props: Props) => {
                   variant="titleLarge"
                   style={{ fontWeight: "700", padding: 16 }}
                 >
-                  Posts
+                  Your posts
                 </Text>
               </View>
             )}

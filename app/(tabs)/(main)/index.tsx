@@ -6,7 +6,7 @@ import { useUser } from "@clerk/clerk-expo";
 import { useQuery } from "@tanstack/react-query";
 import { BACKEND_ENDPOINT } from "@/constants/Colors";
 import { usePostsStore } from "@/store/zustand";
-import { Post } from "@/new-types";
+import { Timeline } from "@/new-types";
 
 type Props = {};
 
@@ -16,7 +16,7 @@ const HomeScreen = (props: Props) => {
 
   const { updatePosts } = usePostsStore((state) => state);
 
-  const { data: posts, refetch } = useQuery({
+  const { refetch, isRefetching } = useQuery({
     queryKey: ["posts", "timeline", user?.id, isSignedIn],
     queryFn: async () => {
       const response = await fetch(
@@ -31,7 +31,7 @@ const HomeScreen = (props: Props) => {
       const resp = (await response.json()) as {
         result: {
           data: {
-            data: Post[];
+            data: Timeline[];
             message?: string;
             error?: string;
             statusCode: string;
@@ -44,12 +44,12 @@ const HomeScreen = (props: Props) => {
       return await response.json();
     },
     enabled: !!user?.id,
-    refetchInterval: 3000000, // Refetch every minute
+    refetchInterval: 60000, // Refetch every minute
   });
 
   return (
     <SafeAreaView style={{ backgroundColor: dark ? "#000" : "#fff" }}>
-      <ScrollFeeds refetch={refetch} />
+      <ScrollFeeds isRefetching={isRefetching} refetch={refetch} />
     </SafeAreaView>
   );
 };

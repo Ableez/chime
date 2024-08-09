@@ -26,7 +26,7 @@ import XBackHeader from "@/components/x-header";
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 function onAppStateChange(status: AppStateStatus) {
   if (Platform.OS !== "web") {

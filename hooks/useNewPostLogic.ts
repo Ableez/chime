@@ -6,6 +6,8 @@ import { useMutation } from "@tanstack/react-query";
 import * as ImagePicker from "expo-image-picker";
 import { BACKEND_ENDPOINT } from "@/constants/Colors";
 import { uploadFile } from "@/utils/helpers/uploadFile";
+import { queryClient } from "@/app/_layout";
+import { usePostsStore } from "@/store/zustand";
 
 export const useNewPostLogic = () => {
   const [selectedImages, setSelectedImages] = useState<
@@ -15,6 +17,7 @@ export const useNewPostLogic = () => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const { todo } = useLocalSearchParams();
   const { user } = useUser();
+  const { updateIsPosting } = usePostsStore();
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -85,7 +88,14 @@ export const useNewPostLogic = () => {
   }, []);
 
   const createPostMutation = useMutation({
-    mutationFn: async (images: string[]) => {
+    mutationFn: async (
+      images: {
+        originalWidth: string;
+        originalHeight: string;
+        url: string;
+      }[]
+    ) => {
+      updateIsPosting(true);
       const response = await fetch(`${BACKEND_ENDPOINT}/trpc/post.create`, {
         body: JSON.stringify({
           userId: user?.id,
@@ -99,19 +109,31 @@ export const useNewPostLogic = () => {
       }
       return response.json();
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["timeline"] });
+      updateIsPosting(false);
+    },
   });
 
   const handlePost = async () => {
     if (!postText && selectedImages.length === 0) {
       return;
     }
-    const imagesUrl: string[] = [];
+    updateIsPosting(true);
+    router.back();
+    const imagesUrl: {
+      originalWidth: string;
+      originalHeight: string;
+      url: string;
+    }[] = [];
 
     for (let idx = 0; idx < selectedImages.length; idx++) {
       const media = selectedImages[idx];
 
       if (!media?.base64) {
         console.log("[ERROR]🐞", "BASE64 NULL");
+
         return;
       }
 
@@ -122,7 +144,12 @@ export const useNewPostLogic = () => {
           media: media,
         });
 
-        if (url) imagesUrl.push(url);
+        if (url)
+          imagesUrl.push({
+            url,
+            originalHeight: media?.height.toString(),
+            originalWidth: media?.width.toString(),
+          });
       } catch (err) {
         console.error(JSON.stringify(err));
       }
@@ -136,11 +163,12 @@ export const useNewPostLogic = () => {
       if (create.result.data.statusCode === "201") {
         setPostText("");
         setSelectedImages([]);
-        router.replace("/");
       }
     } catch (error) {
       console.error(JSON.stringify(error));
       console.error(error);
+    } finally {
+      updateIsPosting(false);
     }
   };
 

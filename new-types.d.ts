@@ -37,6 +37,8 @@ export type Media = {
   id: string;
   url: string;
   postId: string;
+  originalWidth: string;
+  originalHeight: string;
   post: Post;
   owner: User;
 };
@@ -48,4 +50,10 @@ export type Like = {
   createdAt: string;
   user: User;
   post: Post;
+};
+
+export type Timeline = {
+  post: Post;
+  user: User;
+  media: Media[];
 };

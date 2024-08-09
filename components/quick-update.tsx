@@ -4,6 +4,7 @@ import { Text, useTheme } from "react-native-paper";
 import { Camera, LucideImages } from "lucide-react-native";
 import { Link } from "expo-router";
 import * as Haptics from "expo-haptics";
+import { useUser } from "@clerk/clerk-expo";
 
 const activityIcons = [
   {
@@ -71,6 +72,9 @@ const activityIcons = [
 
 const QuickUpdate = () => {
   const { dark } = useTheme();
+  const { isLoaded, isSignedIn, user } = useUser();
+
+  if (isLoaded && !isSignedIn) return null;
 
   return (
     <View
@@ -87,7 +91,7 @@ const QuickUpdate = () => {
       <Link href={"/profile"}>
         <View>
           <Image
-            source={{ uri: currentUser.profilePicture }}
+            source={{ uri: user?.imageUrl }}
             style={{
               width: 52,
               height: 52,
