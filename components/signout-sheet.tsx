@@ -3,8 +3,6 @@ import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 import Button from "./ui/button";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
-import { ThemedView } from "./ThemedView";
-import { ReduceMotion } from "react-native-reanimated";
 import { useAuth } from "@clerk/clerk-expo";
 
 type Props = {};
@@ -14,7 +12,11 @@ const SignoutSheet = (props: Props) => {
   const { signOut } = useAuth();
 
   return (
-    <View style={{ width: "100%", height: "auto" }}>
+    <View
+      style={{
+        width: "100%",
+      }}
+    >
       <Button
         variant="destructive_ghost"
         title="Sign out"
@@ -22,17 +24,18 @@ const SignoutSheet = (props: Props) => {
       />
 
       <BottomSheetModal
-        animationConfigs={{
-          mass: 0.4,
-        }}
         ref={signoutSheetRef}
         index={0}
-        snapPoints={["35%"]}
+        snapPoints={["70%"]}
         animateOnMount={true}
         enablePanDownToClose={true}
-        style={styles.bottomSheet}
       >
-        <BottomSheetView style={{ flex: 1, flexDirection: "column" }}>
+        <BottomSheetView
+          style={{
+            flex: 1,
+            flexDirection: "column",
+          }}
+        >
           <View style={styles.container}>
             <View style={styles.iconContainer}>
               <Text variant="headlineSmall">Are you sure?</Text>
@@ -60,15 +63,12 @@ const SignoutSheet = (props: Props) => {
 export default SignoutSheet;
 
 const styles = StyleSheet.create({
-  bottomSheet: {
-    backgroundColor: "#222",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-  },
   container: {
     gap: 38,
     padding: 16,
-    paddingTop: 42,
+    paddingTop: 40,
+    height: "100%",
+    justifyContent: "center",
   },
   iconContainer: {
     alignItems: "center",

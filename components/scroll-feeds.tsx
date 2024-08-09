@@ -6,8 +6,17 @@ import HeadLogo from "./head-logo";
 import QuickUpdate from "./quick-update";
 import { PostType } from "@/utils/th";
 import PostItem from "./post-item";
+import { Post } from "@/new-types";
+import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
+import { usePostsStore } from "@/store/zustand";
 
-const ScrollFeeds = () => {
+type Props = {
+  refetch: (
+    options?: RefetchOptions
+  ) => Promise<QueryObserverResult<any, Error>>;
+};
+
+const ScrollFeeds = ({}: Props) => {
   const renderItems = useCallback(
     ({ item }: { item: PostType; index: number }) => {
       const user = users.find((user) => user.id === item.user);
@@ -15,6 +24,10 @@ const ScrollFeeds = () => {
     },
     []
   );
+
+  const { posts } = usePostsStore();
+
+  console.log(JSON.stringify(posts));
 
   const keyExtractor = (item: PostType) => item.id + "_POST-ITEM";
 

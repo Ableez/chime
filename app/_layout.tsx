@@ -21,6 +21,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import XBackHeader from "@/components/x-header";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -94,23 +95,20 @@ export default function RootLayout() {
     return null;
   }
 
-  // console.log("MIGRATION SUCCESS", success);
-  // console.log("MIGRATION ERROR", error);
-
   return (
-    <ClerkProvider
-      tokenCache={tokenCache}
-      publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY as string}
-    >
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <ClerkProvider
+        tokenCache={tokenCache}
+        publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY as string}
+      >
         <ClerkLoaded>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <PaperProvider
-              theme={paperTheme}
-              settings={{
-                rippleEffectEnabled: true,
-              }}
-            >
+          <PaperProvider
+            theme={paperTheme}
+            settings={{
+              rippleEffectEnabled: true,
+            }}
+          >
+            <GestureHandlerRootView style={{ flex: 1 }}>
               <BottomSheetModalProvider>
                 <Stack
                   screenOptions={{
@@ -148,18 +146,32 @@ export default function RootLayout() {
                   <Stack.Screen
                     name="edit-profile"
                     options={{
-                      headerShown: false,
+                      headerShown: true,
+                      headerRight: () => <XBackHeader />,
                       headerTitle: "Chat",
-                      animation: "slide_from_bottom",
+                      animation: "fade_from_bottom",
+                      title: "Profile",
+                      headerBackVisible: false,
+                      headerBackButtonMenuEnabled: true,
+                    }}
+                  />
+                  <Stack.Screen
+                    name="profile-menu-drawer"
+                    options={{
+                      headerShown: true,
+                      headerLeft: () => <XBackHeader />,
+                      animation: "slide_from_right",
+                      title: "Profile",
+                      headerBackVisible: false,
                       headerBackButtonMenuEnabled: true,
                     }}
                   />
                 </Stack>
               </BottomSheetModalProvider>
-            </PaperProvider>
-          </GestureHandlerRootView>
+            </GestureHandlerRootView>
+          </PaperProvider>
         </ClerkLoaded>
-      </QueryClientProvider>
-    </ClerkProvider>
+      </ClerkProvider>
+    </QueryClientProvider>
   );
 }

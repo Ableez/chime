@@ -75,3 +75,81 @@ export type Database = {
   localDB: ExpoSQLiteDatabase<Record<string, never>>;
   remoteDB: PostgresJsDatabase<typeof remoteSchema>;
 };
+
+export type CUserPublicMetadata = {
+  profilePicture?: string | File;
+  bio?: string;
+};
+
+interface UserResource extends ClerkResource {
+  id: string;
+  externalId: string | null;
+  primaryEmailAddressId: string | null;
+  primaryEmailAddress: EmailAddressResource | null;
+  primaryPhoneNumberId: string | null;
+  primaryPhoneNumber: PhoneNumberResource | null;
+  primaryWeb3WalletId: string | null;
+  primaryWeb3Wallet: Web3WalletResource | null;
+  username: string | null;
+  fullName: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  imageUrl: string;
+  hasImage: boolean;
+  emailAddresses: EmailAddressResource[];
+  phoneNumbers: PhoneNumberResource[];
+  web3Wallets: Web3WalletResource[];
+  externalAccounts: ExternalAccountResource[];
+  passkeys: PasskeyResource[];
+  samlAccounts: SamlAccountResource[];
+  organizationMemberships: OrganizationMembershipResource[];
+  passwordEnabled: boolean;
+  totpEnabled: boolean;
+  backupCodeEnabled: boolean;
+  twoFactorEnabled: boolean;
+  publicMetadata: UserPublicMetadata;
+  unsafeMetadata: UserUnsafeMetadata;
+  lastSignInAt: Date | null;
+  createOrganizationEnabled: boolean;
+  deleteSelfEnabled: boolean;
+  updatedAt: Date | null;
+  createdAt: Date | null;
+  update: (params: UpdateUserParams) => Promise<UserResource>;
+  delete: () => Promise<void>;
+  updatePassword: (params: UpdateUserPasswordParams) => Promise<UserResource>;
+  removePassword: (params: RemoveUserPasswordParams) => Promise<UserResource>;
+  createEmailAddress: (
+    params: CreateEmailAddressParams
+  ) => Promise<EmailAddressResource>;
+  createPasskey: () => Promise<PasskeyResource>;
+  createPhoneNumber: (
+    params: CreatePhoneNumberParams
+  ) => Promise<PhoneNumberResource>;
+  createWeb3Wallet: (
+    params: CreateWeb3WalletParams
+  ) => Promise<Web3WalletResource>;
+  isPrimaryIdentification: (
+    ident: EmailAddressResource | PhoneNumberResource | Web3WalletResource
+  ) => boolean;
+  getSessions: () => Promise<SessionWithActivitiesResource[]>;
+  setProfileImage: (params: SetProfileImageParams) => Promise<ImageResource>;
+  createExternalAccount: (
+    params: CreateExternalAccountParams
+  ) => Promise<ExternalAccountResource>;
+  getOrganizationMemberships: GetOrganizationMemberships;
+  getOrganizationInvitations: (
+    params?: GetUserOrganizationInvitationsParams
+  ) => Promise<ClerkPaginatedResponse<UserOrganizationInvitationResource>>;
+  getOrganizationSuggestions: (
+    params?: GetUserOrganizationSuggestionsParams
+  ) => Promise<ClerkPaginatedResponse<OrganizationSuggestionResource>>;
+  leaveOrganization: (organizationId: string) => Promise<DeletedObjectResource>;
+  createTOTP: () => Promise<TOTPResource>;
+  verifyTOTP: (params: VerifyTOTPParams) => Promise<TOTPResource>;
+  disableTOTP: () => Promise<DeletedObjectResource>;
+  createBackupCode: () => Promise<BackupCodeResource>;
+  get verifiedExternalAccounts(): ExternalAccountResource[];
+  get unverifiedExternalAccounts(): ExternalAccountResource[];
+  get hasVerifiedEmailAddress(): boolean;
+  get hasVerifiedPhoneNumber(): boolean;
+}

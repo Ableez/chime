@@ -3,6 +3,8 @@ import AsteriskIcon from "@/components/asterisk";
 import PostItem from "@/components/post-item";
 import ProfileHeader from "@/components/profile-header";
 import Button from "@/components/ui/button";
+import { BACKEND_ENDPOINT } from "@/constants/Colors";
+import { CUserPublicMetadata } from "@/type";
 import { currentUser } from "@/utils/mockAuth";
 import { postData } from "@/utils/new-data";
 import { PostType } from "@/utils/th";
@@ -13,14 +15,16 @@ import {
   BottomSheetTextInput,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Asterisk } from "lucide-react-native";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Dimensions,
   FlatList,
   Pressable,
+  RefreshControl,
   StyleSheet,
   View,
 } from "react-native";
@@ -45,7 +49,13 @@ const ProfileScreen = (props: Props) => {
     lastName: "",
   });
   const [bio, setBio] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async () => {
+      await user?.reload();
+    };
+  }, []);
 
   const keyExtractor = (item: PostType) => item.id + "_POST-ITEM";
 
@@ -56,6 +66,15 @@ const ProfileScreen = (props: Props) => {
     },
     []
   );
+
+  const updateUserPublicMetadataMutation = useMutation({
+    mutationFn: async (data: CUserPublicMetadata) => {
+      await fetch(`${BACKEND_ENDPOINT}/trpc/user.updatePublicMetadata`, {
+        body: JSON.stringify({ userId: user?.id, data }),
+        method: "POST",
+      });
+    },
+  });
 
   const handleSheetChanges = useCallback((index: number) => {
     console.log("handleSheetChanges", index);
@@ -81,9 +100,12 @@ const ProfileScreen = (props: Props) => {
       if (isPersonalDetailsComplete() && isBioComplete()) {
         if (user) {
           await user.update({
-            first_name: personalDetails.firstName,
-            last_name: personalDetails.lastName,
+            firstName: personalDetails.firstName.trim(),
+            lastName: personalDetails.lastName.trim(),
           });
+
+          updateUserPublicMetadataMutation.mutate({ bio: bio.trim() });
+
           Alert.alert(
             "Profile Updated",
             "Your profile has been successfully updated."
@@ -287,10 +309,6 @@ const ProfileScreen = (props: Props) => {
             title="Create profile"
             onPress={() => personaDetailsRef.current?.present()}
           />
-
-          {/* <View style={{ marginTop: 62, width: "100%" }}>
-            <SignoutSheet />
-          </View> */}
         </ThemedView>
       </SafeAreaView>
     );
@@ -307,6 +325,12 @@ const ProfileScreen = (props: Props) => {
             data={posts}
             keyExtractor={keyExtractor}
             renderItem={renderItems}
+            refreshControl={
+              <RefreshControl
+                refreshing={loading}
+                onRefresh={() => router.replace("/profile")}
+              />
+            }
             ListHeaderComponent={() => (
               <View
                 style={{ borderBottomWidth: 0.2, borderBottomColor: "#ccc" }}

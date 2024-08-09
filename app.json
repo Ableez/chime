@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "expo-app",
-    "slug": "expo-app",
+    "name": "asterisk",
+    "slug": "asterisk",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -28,11 +28,17 @@
     },
     "web": {
       "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "output": "server"
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-router",
+        {
+          "origin": "https://e54f-102-89-32-24.ngrok-free.app/"
+        }
+      ],
       [
         "expo-av",
         {

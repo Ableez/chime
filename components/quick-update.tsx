@@ -1,22 +1,8 @@
 import { currentUser } from "@/utils/mockAuth";
-import {
-  FlatList,
-  Image,
-  Pressable,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
-import { Text } from "react-native-paper";
-import {
-  AlignLeft,
-  Asterisk,
-  Camera,
-  Hash,
-  LucideImages,
-  Mic,
-} from "lucide-react-native";
-import { Link, useNavigation } from "expo-router";
+import { FlatList, Image, StyleSheet, View } from "react-native";
+import { Text, useTheme } from "react-native-paper";
+import { Camera, LucideImages } from "lucide-react-native";
+import { Link } from "expo-router";
 import * as Haptics from "expo-haptics";
 
 const activityIcons = [
@@ -84,7 +70,8 @@ const activityIcons = [
 ];
 
 const QuickUpdate = () => {
-  const navigation = useNavigation();
+  const { dark } = useTheme();
+
   return (
     <View
       style={{
@@ -92,7 +79,7 @@ const QuickUpdate = () => {
         gap: 16,
         alignItems: "flex-start",
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: "#d9d9d9",
+        borderBottomColor: dark ? "#444" : "#d9d9d9",
         padding: 16,
         marginBottom: 16,
       }}

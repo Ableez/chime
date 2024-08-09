@@ -85,10 +85,8 @@ const ProfileHeader = (props: Props) => {
         </View>
 
         <View>
-          <Text>
-            {user?.unsafeMetadata.bio
-              ? JSON.stringify(user.unsafeMetadata.bio)
-              : "No bio"}
+          <Text style={{ marginBottom: 8 }}>
+            {user?.publicMetadata.bio ?? "No bio"}
           </Text>
           <FlatList
             data={followers.splice(0, 3)}
@@ -169,6 +167,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     padding: 16,
+    marginBottom: 14,
   },
   headerText: {
     fontWeight: "700",

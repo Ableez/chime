@@ -1,68 +1,49 @@
+import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
+  Alert,
   Image,
+  ScrollView,
   StyleSheet,
+  TextInput,
   TouchableNativeFeedback,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { ThemedView } from "@/components/ThemedView";
-import { Asterisk, PenSquare } from "lucide-react-native";
-import { TextInput } from "react-native";
-import { Switch, Text } from "react-native-paper";
-import * as ImagePicker from "expo-image-picker";
+import { Text, useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import { router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useMutation } from "@tanstack/react-query";
+import * as ImagePicker from "expo-image-picker";
 
-type Props = {};
+import { ThemedView } from "@/components/ThemedView";
+import { PenSquare } from "lucide-react-native";
+import Button from "@/components/ui/button";
+import { BACKEND_ENDPOINT } from "@/constants/Colors";
+import { blobToDataURL } from "@/utils/helpers/blobtobase64";
+import { CUserPublicMetadata } from "@/type";
 
-const EditProfile: React.FC<Props> = (props: Props) => {
+const EditProfile: React.FC = () => {
   const { user } = useUser();
   const { isSignedIn, isLoaded } = useAuth();
+  const { dark } = useTheme();
+
   const [userInfo, setUserInfo] = useState({
-    username: user?.username,
-    firstName: user?.firstName,
-    lastName: user?.lastName,
+    username: user?.username || "",
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
     bio: (user?.publicMetadata.bio as string) || "",
-    profilePicture: user?.imageUrl,
-    isPrivate: user?.publicMetadata.isPrivate as boolean,
+    profilePicture: user?.imageUrl || "",
   });
 
-  // use query mutation to send to trpc to update
-  // trpc backend works well already donot touch
-  // update trpc input object to accept any more feilds than bio
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
-      return router.navigate("/login");
+      router.navigate("/login");
     }
   }, []);
 
-  const [originalUserInfo, setOriginalUserInfo] = useState(userInfo);
-
-  const toggleSwitch = () => {
-    setUserInfo((prevState) => ({
-      ...prevState,
-      isPrivate: !prevState.isPrivate,
-    }));
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setUserInfo((prevState) => ({
-      ...prevState,
-      [field]: value,
-    }));
-  };
-
-  const handleUpdate = () => {
-    if (hasChanges) {
-      // Here you can handle the update logic, e.g., API call
-      console.log("Updated User Info:", userInfo);
-      // After updating, you might want to set the original info to the updated info
-      setOriginalUserInfo(userInfo);
-    }
-  };
+  const [originalUserInfo] = useState(userInfo);
 
   // Check if there are changes
   const hasChanges =
@@ -70,81 +51,128 @@ const EditProfile: React.FC<Props> = (props: Props) => {
     userInfo.lastName !== originalUserInfo.lastName ||
     userInfo.username !== originalUserInfo.username ||
     userInfo.bio !== originalUserInfo.bio ||
-    userInfo.isPrivate !== originalUserInfo.isPrivate ||
     userInfo.profilePicture !== originalUserInfo.profilePicture;
 
-  const pickImage = async () => {
-    // Request permission to access the camera roll
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+  const updateUserPublicMetadataMutation = useMutation({
+    mutationFn: async (data: CUserPublicMetadata) => {
+      await fetch(`${BACKEND_ENDPOINT}/trpc/user.updatePublicMetadata`, {
+        body: JSON.stringify({ userId: user?.id, data }),
+        method: "POST",
+      });
+    },
+  });
 
-    if (permissionResult.granted === false) {
+  const handleInputChange = (field: keyof typeof userInfo, value: string) => {
+    setUserInfo((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleUpdate = async () => {
+    if (!user) return;
+
+    if (!hasChanges) return;
+
+    setLoading(true);
+
+    try {
+      const updates: Partial<typeof userInfo> = {};
+      Object.entries(userInfo).forEach(([key, value]) => {
+        if (value !== user[key as keyof typeof user]) {
+          updates[key as keyof typeof userInfo] = value;
+        }
+      });
+
+      if (Object.keys(updates).length > 0) {
+        await user.update({
+          firstName: updates.firstName,
+          lastName: updates.lastName,
+          username: updates.username,
+        });
+
+        if (userInfo.bio !== originalUserInfo.bio) {
+          updateUserPublicMetadataMutation.mutate({ bio: userInfo.bio });
+        }
+
+        await user.reload();
+        await user.reload();
+        await user.reload();
+
+        router.canGoBack() ? router.back() : router.navigate("/");
+      }
+    } catch (error) {
+      console.log(JSON.stringify(error));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateProfilePicture = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
       alert("Permission to access camera roll is required!");
       return;
     }
 
-    // Launch the image picker
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
-      cameraType: ImagePicker.CameraType.front,
     });
 
-    if (!result.canceled) {
-      setUserInfo((prevState) => ({
-        ...prevState,
-        profilePicture: result.assets[0]!.uri, // Update the profile picture
-      }));
+    if (!result.canceled && result.assets[0]) {
+      setLoading(true);
+      try {
+        const response = await fetch(result.assets[0].uri);
+        const blob = await response.blob();
+        const base64 = await blobToDataURL(blob);
+        await user?.setProfileImage({ file: base64 });
+        await user?.reload();
+        if (!result.assets[0]) {
+          Alert.alert("", "No image was selected");
+          return;
+        }
+        setUserInfo((prev) => ({
+          ...prev,
+          profilePicture: result.assets[0]!.uri,
+        }));
 
-      const response = await fetch(result.assets[0]!.uri);
-      const blob = await response.blob();
-
-      console.log("[BLOB]", blob);
-
-      if (user && isSignedIn) {
-        const imgrsc = await user?.setProfileImage({
-          file: result.assets[0]!.uri,
-        });
-
-        console.log("UPDATING PROFILE IMAGE", imgrsc);
+        router.canGoBack() ? router.back() : router.navigate("/");
+      } catch (error) {
+        console.error("Error updating profile image:", error);
+      } finally {
+        setLoading(false);
       }
     }
   };
 
+  const renderInput = (label: string, field: keyof typeof userInfo) => (
+    <View>
+      <Text variant="labelMedium" style={styles.label}>
+        {label}
+      </Text>
+      <TextInput
+        value={userInfo[field]}
+        onChangeText={(text) => handleInputChange(field, text)}
+        style={styles.input}
+        cursorColor={dark ? "#fff" : "#000"}
+        multiline={field === "bio"}
+      />
+    </View>
+  );
+
   return (
-    <SafeAreaView>
-      <ThemedView
-        style={{
-          height: Dimensions.get("window").height,
-          padding: 16,
-        }}
-      >
-        <Asterisk />
-        <View
-          style={{
-            padding: 16,
-            borderWidth: 0.8,
-            borderColor: "#ddd",
-            borderRadius: 24,
-            width: "100%",
-          }}
-        >
-          <View style={{ gap: 18 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "flex-start",
-                gap: 16,
-              }}
-            >
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: dark ? "#000" : "#fff" }]}
+    >
+      <ScrollView>
+        <ThemedView style={styles.content}>
+          <View style={styles.card}>
+            <View style={styles.profileImageContainer}>
               <Image
                 source={{ uri: userInfo.profilePicture }}
-                style={{ width: 90, height: 90, borderRadius: 100 }}
+                style={styles.profileImage}
               />
-              <TouchableNativeFeedback onPress={pickImage}>
+              <TouchableNativeFeedback onPress={handleUpdateProfilePicture}>
                 <View
                   style={{
                     padding: 4,
@@ -159,127 +187,51 @@ const EditProfile: React.FC<Props> = (props: Props) => {
                 </View>
               </TouchableNativeFeedback>
             </View>
-            <View style={{ gap: 10 }}>
-              <View>
-                <Text variant="labelMedium" style={{ padding: 4 }}>
-                  Username
-                </Text>
-                <TextInput
-                  placeholder="fullname"
-                  selectTextOnFocus
-                  clearButtonMode="while-editing"
-                  selectionColor={"rgba(105, 156, 255, 0.38)"}
-                  value={userInfo.username || ""}
-                  onChangeText={(text) => handleInputChange("username", text)}
-                  style={styles.input}
-                />
-              </View>
-
-              <View>
-                <Text variant="labelMedium" style={{ padding: 4 }}>
-                  Firstname
-                </Text>
-                <TextInput
-                  placeholder="fullname"
-                  selectTextOnFocus
-                  clearButtonMode="while-editing"
-                  selectionColor={"rgba(105, 156, 255, 0.38)"}
-                  value={userInfo.firstName || ""}
-                  onChangeText={(text) => handleInputChange("firstName", text)}
-                  style={styles.input}
-                />
-              </View>
-
-              <View>
-                <Text variant="labelMedium" style={{ padding: 4 }}>
-                  Lastname
-                </Text>
-                <TextInput
-                  placeholder="fullname"
-                  selectTextOnFocus
-                  clearButtonMode="while-editing"
-                  selectionColor={"rgba(105, 156, 255, 0.38)"}
-                  value={userInfo.lastName || ""}
-                  onChangeText={(text) => handleInputChange("lastName", text)}
-                  style={styles.input}
-                />
-              </View>
-
-              <View>
-                <Text variant="labelMedium" style={{ padding: 4 }}>
-                  Bio
-                </Text>
-                <TextInput
-                  placeholder="bio"
-                  selectTextOnFocus
-                  clearButtonMode="while-editing"
-                  selectionColor={"rgba(105, 156, 255, 0.38)"}
-                  value={userInfo.bio}
-                  onChangeText={(text) => handleInputChange("bio", text)}
-                  multiline
-                  style={styles.input}
-                />
-              </View>
-
-              <View>
-                <Text variant="labelMedium" style={{ paddingVertical: 4 }}>
-                  Private profile
-                </Text>
-                <View style={{ flexDirection: "row" }}>
-                  <Text variant="bodySmall" style={{ flex: 1 }}>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                    Eligendi quaerat.
-                  </Text>
-                  <Switch
-                    trackColor={{ false: "#767577", true: "#ddd" }}
-                    thumbColor={userInfo.isPrivate ? "#007eed" : "#f4f3f4"}
-                    ios_backgroundColor="#3e3e3e"
-                    onValueChange={toggleSwitch}
-                    value={userInfo.isPrivate || false}
-                  />
-                </View>
-              </View>
-            </View>
-            <TouchableNativeFeedback
-              disabled={!hasChanges}
+            {renderInput("Username", "username")}
+            {renderInput("First Name", "firstName")}
+            {renderInput("Last Name", "lastName")}
+            {renderInput("Bio", "bio")}
+            <Button
               onPress={handleUpdate}
-            >
-              <View
-                style={[styles.updateButton, { opacity: hasChanges ? 1 : 0.5 }]}
-              >
-                <Text style={styles.updateButtonText}>Update</Text>
-              </View>
-            </TouchableNativeFeedback>
+              loading={updateUserPublicMetadataMutation.isPending || loading}
+              title="Update"
+              disabled={
+                updateUserPublicMetadataMutation.isPending || !hasChanges
+              }
+            />
           </View>
-        </View>
-      </ThemedView>
+        </ThemedView>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  container: { flex: 1 },
+  content: { paddingHorizontal: 16 },
+  card: {
+    padding: 16,
+    borderWidth: 0.8,
+    borderColor: "#ddd",
+    borderRadius: 24,
+    gap: 18,
+  },
+  profileImageContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  profileImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+  },
+  label: { padding: 4 },
   input: {
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 16,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: {
-      height: 3,
-      width: 2,
-    },
-    fontSize: 16,
-  },
-  updateButton: {
-    marginTop: 20,
-    backgroundColor: "#007eed",
-    padding: 12,
-    borderRadius: 16,
-    alignItems: "center",
-  },
-  updateButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    padding: 10,
     fontSize: 16,
   },
 });

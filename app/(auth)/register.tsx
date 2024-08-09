@@ -8,6 +8,7 @@ import {
   Alert,
   Platform,
   Keyboard,
+  ScrollView,
 } from "react-native";
 import {
   isClerkAPIResponseError,
@@ -19,7 +20,6 @@ import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
 import { ActivityIndicator, Text, useTheme } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { env } from "@/env";
 
 import { ThemedView } from "@/components/ThemedView";
 import {
@@ -213,138 +213,33 @@ export default function SignUpScreen() {
   }, [isLoaded, signUp, resendTimer]);
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        {!pendingVerification ? (
-          <View>
-            <View
-              style={{
-                height: Keyboard.isVisible()
-                  ? Dimensions.get("window").height +
-                    Keyboard.metrics()?.height!
-                  : Dimensions.get("window").height,
-                backgroundColor: dark ? "#000" : "#fff",
-              }}
-            >
-              <AsteriskIcon />
-              <ThemedView
+    <ScrollView>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          {!pendingVerification ? (
+            <View>
+              <View
                 style={{
-                  gap: 12,
-                  padding: 16,
-                  justifyContent: "space-between",
-                  // flex: 1,
-                  flexDirection: "column",
+                  height: Keyboard.isVisible()
+                    ? Dimensions.get("window").height +
+                      Keyboard.metrics()?.height!
+                    : Dimensions.get("window").height,
+                  backgroundColor: dark ? "#000" : "#fff",
                 }}
               >
-                <View
+                <AsteriskIcon />
+                <ThemedView
                   style={{
-                    borderRadius: 20,
-                    overflow: "hidden",
-                    width: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    gap: 12,
+                    padding: 16,
+                    justifyContent: "space-between",
+                    // flex: 1,
+                    flexDirection: "column",
                   }}
                 >
-                  <Pressable
-                    android_ripple={{
-                      color: dark ? "#ddd" : "#EDF1FF",
-                    }}
-                    style={{
-                      backgroundColor: dark ? "#fff" : "#EDF1FF",
-                      borderRadius: 20,
-                      width: "100%",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 8,
-                      borderWidth: 1,
-                      borderColor: "#BCC6E0",
-                      overflow: "hidden",
-                      height: 50,
-                    }}
-                    onPress={() => router.navigate("/register")}
-                  >
-                    <Image
-                      source={require("@/assets/images/google.png")}
-                      width={30}
-                      height={30}
-                      style={{ width: 30, height: 30, borderRadius: 100 }}
-                    />
-                    <Text
-                      variant="titleSmall"
-                      style={{ color: dark ? "#000" : "#333" }}
-                    >
-                      Continue with Google
-                    </Text>
-                  </Pressable>
-                </View>
-                <Text style={{ marginVertical: 16, textAlign: "center" }}>
-                  Or
-                </Text>
-                <View style={{ gap: 12 }}>
-                  <TextInput
-                    style={{
-                      overflow: "hidden",
-                      paddingHorizontal: 24,
-                      height: 52,
-                      borderWidth: 0.3,
-                      borderColor: "#ccc",
-                      borderRadius: 10,
-                    }}
-                    autoCapitalize="none"
-                    cursorColor={dark ? "#fff" : "#000"}
-                    importantForAutofill="yes"
-                    autoComplete="username"
-                    value={username}
-                    placeholder="username"
-                    enterKeyHint="next"
-                    onChangeText={(username) =>
-                      setFormData((p) => ({ ...p, username }))
-                    }
-                  />
-                  <TextInput
-                    style={{
-                      overflow: "hidden",
-                      paddingHorizontal: 24,
-                      height: 52,
-                      borderWidth: 0.3,
-                      borderColor: "#ccc",
-                      borderRadius: 10,
-                    }}
-                    autoCapitalize="none"
-                    cursorColor={dark ? "#fff" : "#000"}
-                    importantForAutofill="yes"
-                    autoComplete="email"
-                    value={emailAddress}
-                    placeholder="you@mail.com"
-                    keyboardType="email-address"
-                    enterKeyHint="next"
-                    onChangeText={(emailAddress) =>
-                      setFormData((p) => ({ ...p, emailAddress }))
-                    }
-                  />
-                  <TextInput
-                    style={{
-                      overflow: "hidden",
-                      paddingHorizontal: 24,
-                      height: 52,
-                      borderWidth: 0.3,
-                      borderColor: "#ccc",
-                      borderRadius: 10,
-                    }}
-                    autoComplete="password"
-                    value={password}
-                    cursorColor={dark ? "#fff" : "#000"}
-                    placeholder="Password"
-                    secureTextEntry={true}
-                    enterKeyHint="go"
-                    onChangeText={(password) =>
-                      setFormData((p) => ({ ...p, password }))
-                    }
-                  />
                   <View
                     style={{
                       borderRadius: 20,
@@ -356,187 +251,294 @@ export default function SignUpScreen() {
                   >
                     <Pressable
                       android_ripple={{
-                        color: dark ? "#ddd" : "#009eed",
+                        color: dark ? "#ddd" : "#EDF1FF",
                       }}
                       style={{
-                        backgroundColor: dark ? "#fff" : "#007eed",
+                        backgroundColor: dark ? "#fff" : "#EDF1FF",
                         borderRadius: 20,
                         width: "100%",
                         flexDirection: "row",
                         alignItems: "center",
                         justifyContent: "center",
                         gap: 8,
+                        borderWidth: 1,
+                        borderColor: "#BCC6E0",
                         overflow: "hidden",
                         height: 50,
-                        alignContent: "center",
-                        opacity: loading ? 0.7 : 1,
                       }}
-                      onPress={() => {
-                        setLoading((p) => !p);
-                        onSignUpPress();
-                      }}
-                      disabled={loading || !isFormDataValid()}
+                      onPress={() => router.navigate("/register")}
                     >
-                      {loading ? (
-                        <ActivityIndicator
-                          hidesWhenStopped
-                          color="#fff"
-                          animating={true}
-                        />
-                      ) : null}
-                      {/* {loading ? <Loader2 width={20} color={"#fff"} /> : null} */}
+                      <Image
+                        source={require("@/assets/images/google.png")}
+                        width={30}
+                        height={30}
+                        style={{ width: 30, height: 30, borderRadius: 100 }}
+                      />
                       <Text
                         variant="titleSmall"
-                        style={{ color: dark ? "#000" : "#fff" }}
+                        style={{ color: dark ? "#000" : "#333" }}
                       >
-                        Sign Up
+                        Continue with Google
                       </Text>
                     </Pressable>
                   </View>
+                  <Text style={{ marginVertical: 16, textAlign: "center" }}>
+                    Or
+                  </Text>
+                  <View style={{ gap: 12 }}>
+                    <TextInput
+                      style={{
+                        overflow: "hidden",
+                        paddingHorizontal: 24,
+                        height: 52,
+                        borderWidth: 0.3,
+                        borderColor: "#ccc",
+                        borderRadius: 10,
+                      }}
+                      autoCapitalize="none"
+                      cursorColor={dark ? "#fff" : "#000"}
+                      importantForAutofill="yes"
+                      autoComplete="username"
+                      value={username}
+                      placeholder="username"
+                      enterKeyHint="next"
+                      onChangeText={(username) =>
+                        setFormData((p) => ({ ...p, username }))
+                      }
+                    />
+                    <TextInput
+                      style={{
+                        overflow: "hidden",
+                        paddingHorizontal: 24,
+                        height: 52,
+                        borderWidth: 0.3,
+                        borderColor: "#ccc",
+                        borderRadius: 10,
+                      }}
+                      autoCapitalize="none"
+                      cursorColor={dark ? "#fff" : "#000"}
+                      importantForAutofill="yes"
+                      autoComplete="email"
+                      value={emailAddress}
+                      placeholder="you@mail.com"
+                      keyboardType="email-address"
+                      enterKeyHint="next"
+                      onChangeText={(emailAddress) =>
+                        setFormData((p) => ({ ...p, emailAddress }))
+                      }
+                    />
+                    <TextInput
+                      style={{
+                        overflow: "hidden",
+                        paddingHorizontal: 24,
+                        height: 52,
+                        borderWidth: 0.3,
+                        borderColor: "#ccc",
+                        borderRadius: 10,
+                      }}
+                      autoComplete="password"
+                      value={password}
+                      cursorColor={dark ? "#fff" : "#000"}
+                      placeholder="Password"
+                      secureTextEntry={true}
+                      enterKeyHint="go"
+                      onChangeText={(password) =>
+                        setFormData((p) => ({ ...p, password }))
+                      }
+                    />
+                    <View
+                      style={{
+                        borderRadius: 20,
+                        overflow: "hidden",
+                        width: "100%",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Pressable
+                        android_ripple={{
+                          color: dark ? "#ddd" : "#009eed",
+                        }}
+                        style={{
+                          backgroundColor: dark ? "#fff" : "#007eed",
+                          borderRadius: 20,
+                          width: "100%",
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 8,
+                          overflow: "hidden",
+                          height: 50,
+                          alignContent: "center",
+                          opacity: loading ? 0.7 : 1,
+                        }}
+                        onPress={() => {
+                          setLoading((p) => !p);
+                          onSignUpPress();
+                        }}
+                        disabled={loading || !isFormDataValid()}
+                      >
+                        {loading ? (
+                          <ActivityIndicator
+                            hidesWhenStopped
+                            color="#fff"
+                            animating={true}
+                          />
+                        ) : null}
+                        {/* {loading ? <Loader2 width={20} color={"#fff"} /> : null} */}
+                        <Text
+                          variant="titleSmall"
+                          style={{ color: dark ? "#000" : "#fff" }}
+                        >
+                          Sign Up
+                        </Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      borderRadius: 20,
+                      overflow: "hidden",
+                      width: "100%",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      alignSelf: "flex-end",
+                      marginTop: 20,
+                    }}
+                  >
+                    <Pressable
+                      android_ripple={{
+                        color: dark ? "#333" : "#ddd",
+                      }}
+                      style={{
+                        backgroundColor: dark ? "#000" : "#fff",
+                        borderRadius: 20,
+                        width: "100%",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        height: 50,
+                        borderWidth: 1,
+                        borderColor: dark ? "#333" : "#EDF1FF",
+                      }}
+                      onPress={() => router.navigate("/login")}
+                      disabled={loading}
+                    >
+                      <Text
+                        variant="titleSmall"
+                        style={{ color: dark ? "#fff" : "#000" }}
+                      >
+                        Login
+                      </Text>
+                    </Pressable>
+                  </View>
+                </ThemedView>
+              </View>
+            </View>
+          ) : (
+            <View>
+              <ThemedView style={{ padding: 16, gap: 24 }}>
+                <View>
+                  <Text variant="displayMedium" style={{ fontWeight: "600" }}>
+                    6-digit code
+                  </Text>
+                  <Text variant="bodyMedium">
+                    Please enter the code we've sent to{" "}
+                    <Text variant="labelLarge">{emailAddress}</Text> to confirm
+                    your account
+                  </Text>
                 </View>
+                <TextInput
+                  value={code}
+                  placeholder="123456"
+                  onChangeText={setCode}
+                  keyboardType="number-pad"
+                  style={{
+                    height: 54,
+                    paddingHorizontal: 16,
+                    borderWidth: 0.4,
+                    borderColor: "#ccc",
+                    fontSize: 24,
+                    letterSpacing: 10,
+                    borderRadius: 16,
+                    width: "100%",
+                  }}
+                />
                 <View
                   style={{
                     borderRadius: 20,
                     overflow: "hidden",
                     width: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    alignSelf: "flex-end",
-                    marginTop: 20,
                   }}
                 >
                   <Pressable
-                    android_ripple={{
-                      color: dark ? "#333" : "#ddd",
+                    android_ripple={{ color: dark ? "#ddd" : "#009eed" }}
+                    style={{
+                      backgroundColor: dark ? "#fff" : "#007eed",
+                      borderRadius: 20,
+                      width: "100%",
+                      height: 50,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      opacity: loading ? 0.7 : 1,
                     }}
+                    onPress={onPressVerify}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <ActivityIndicator color="#fff" animating={true} />
+                    ) : (
+                      <Text
+                        variant="titleSmall"
+                        style={{ color: dark ? "#000" : "#fff" }}
+                      >
+                        Confirm
+                      </Text>
+                    )}
+                  </Pressable>
+                </View>
+                <Text variant="bodyMedium" style={{ marginTop: 20 }}>
+                  Didn't receive the code?
+                </Text>
+                <View
+                  style={{
+                    borderRadius: 20,
+                    overflow: "hidden",
+                    width: "100%",
+                  }}
+                >
+                  <Pressable
+                    android_ripple={{ color: dark ? "#333" : "#ddd" }}
                     style={{
                       backgroundColor: dark ? "#000" : "#fff",
                       borderRadius: 20,
                       width: "100%",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 8,
                       height: 50,
+                      justifyContent: "center",
+                      alignItems: "center",
                       borderWidth: 1,
                       borderColor: dark ? "#333" : "#EDF1FF",
+                      opacity: resendTimer > 0 || loading ? 0.5 : 1,
                     }}
-                    onPress={() => router.navigate("/login")}
-                    disabled={loading}
+                    onPress={handleResendCode}
+                    disabled={resendTimer > 0 || loading}
                   >
                     <Text
                       variant="titleSmall"
                       style={{ color: dark ? "#fff" : "#000" }}
                     >
-                      Login
+                      {resendTimer > 0
+                        ? `Resend code (${resendTimer}s)`
+                        : "Resend code"}
                     </Text>
                   </Pressable>
                 </View>
               </ThemedView>
             </View>
-          </View>
-        ) : (
-          <View>
-            <ThemedView style={{ padding: 16, gap: 24 }}>
-              <View>
-                <Text variant="displayMedium" style={{ fontWeight: "600" }}>
-                  6-digit code
-                </Text>
-                <Text variant="bodyMedium">
-                  Please enter the code we've sent to{" "}
-                  <Text variant="labelLarge">{emailAddress}</Text> to confirm
-                  your account
-                </Text>
-              </View>
-              <TextInput
-                value={code}
-                placeholder="123456"
-                onChangeText={setCode}
-                keyboardType="number-pad"
-                style={{
-                  height: 54,
-                  paddingHorizontal: 16,
-                  borderWidth: 0.4,
-                  borderColor: "#ccc",
-                  fontSize: 24,
-                  letterSpacing: 10,
-                  borderRadius: 16,
-                  width: "100%",
-                }}
-              />
-              <View
-                style={{
-                  borderRadius: 20,
-                  overflow: "hidden",
-                  width: "100%",
-                }}
-              >
-                <Pressable
-                  android_ripple={{ color: dark ? "#ddd" : "#009eed" }}
-                  style={{
-                    backgroundColor: dark ? "#fff" : "#007eed",
-                    borderRadius: 20,
-                    width: "100%",
-                    height: 50,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    opacity: loading ? 0.7 : 1,
-                  }}
-                  onPress={onPressVerify}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <ActivityIndicator color="#fff" animating={true} />
-                  ) : (
-                    <Text
-                      variant="titleSmall"
-                      style={{ color: dark ? "#000" : "#fff" }}
-                    >
-                      Confirm
-                    </Text>
-                  )}
-                </Pressable>
-              </View>
-              <Text variant="bodyMedium" style={{ marginTop: 20 }}>
-                Didn't receive the code?
-              </Text>
-              <View
-                style={{
-                  borderRadius: 20,
-                  overflow: "hidden",
-                  width: "100%",
-                }}
-              >
-                <Pressable
-                  android_ripple={{ color: dark ? "#333" : "#ddd" }}
-                  style={{
-                    backgroundColor: dark ? "#000" : "#fff",
-                    borderRadius: 20,
-                    width: "100%",
-                    height: 50,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderWidth: 1,
-                    borderColor: dark ? "#333" : "#EDF1FF",
-                    opacity: resendTimer > 0 || loading ? 0.5 : 1,
-                  }}
-                  onPress={handleResendCode}
-                  disabled={resendTimer > 0 || loading}
-                >
-                  <Text
-                    variant="titleSmall"
-                    style={{ color: dark ? "#fff" : "#000" }}
-                  >
-                    {resendTimer > 0
-                      ? `Resend code (${resendTimer}s)`
-                      : "Resend code"}
-                  </Text>
-                </Pressable>
-              </View>
-            </ThemedView>
-          </View>
-        )}
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+          )}
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 }

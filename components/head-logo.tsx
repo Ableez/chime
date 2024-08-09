@@ -1,17 +1,18 @@
 import { Asterisk } from "lucide-react-native";
 import { View } from "react-native";
-import { SharedValue } from "react-native-reanimated";
+import { useTheme } from "react-native-paper";
 
 const HeadLogo = () => {
+  const { dark } = useTheme();
   return (
     <View
       style={{
         alignItems: "center",
         justifyContent: "center",
-        padding: 10,
+        padding: 18,
       }}
     >
-      <Asterisk size={64} color={"#000"} style={{}} />
+      <Asterisk size={68} color={dark ? "#fff" : "#000"} style={{}} />
     </View>
   );
 };

@@ -8,13 +8,13 @@ type Props = {
   size?: number;
 };
 const AsteriskIcon = ({ size }: Props) => {
-  const { colors, dark } = useTheme();
+  const { dark } = useTheme();
   const router = useRouter();
 
   return (
     <TouchableWithoutFeedback
       onPress={() => router.navigate("/")}
-      style={{ width: "100%", borderWidth: 1, borderColor: "#222" }}
+      style={{ width: "100%" }}
     >
       <View
         style={{
@@ -24,7 +24,7 @@ const AsteriskIcon = ({ size }: Props) => {
           width: "100%",
         }}
       >
-        <Asterisk size={size ?? 84} color={colors.onBackground} />
+        <Asterisk size={size ?? 84} color={dark ? "#fff" : "#000"} />
       </View>
     </TouchableWithoutFeedback>
   );

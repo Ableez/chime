@@ -14,13 +14,13 @@ type Props = {
 };
 
 const PostItem = memo(({ item, user }: Props) => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   return (
     <View
       style={{
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: "#EAEAEA",
+        borderBottomColor: dark ? "#222" : "#EAEAEA",
         gap: 24,
       }}
     >

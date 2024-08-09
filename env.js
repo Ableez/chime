@@ -8,6 +8,8 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     CLERK_WEBHOOK_SECRET: z.string(),
+    SUPABASE_URL: z.string(),
+    SUPABASE_ANON_KEY: z.string(),
   },
   clientPrefix: "PUBLIC_",
   client: {
@@ -26,6 +28,8 @@ export const env = createEnv({
     CLERK_WEBHOOK_SECRET: process.env.WEBHOOK_SECRET,
     PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY,
     PUBLIC_BACKEND_ENDPOINT: process.env.BACKEND_ENDPOINT,
+    SUPABASE_URL: process.env.SUPABASE_URL,
+    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
   },
 
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,

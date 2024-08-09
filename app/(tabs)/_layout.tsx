@@ -1,19 +1,19 @@
-import { Tabs, useRouter } from "expo-router";
+import { Tabs } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Text, useTheme } from "react-native-paper";
 
 import { Icon } from "@/components/navigation/TabBarIcon";
-import { Image, Pressable, TextInput, Touchable, View } from "react-native";
+import { Image, TextInput, View } from "react-native";
 import { currentUser } from "@/utils/mockAuth";
-import { EllipsisIcon, Home, Plus, Search, X } from "lucide-react-native";
+import { Home, Plus, Search } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedView } from "@/components/ThemedView";
 import { useSession, useUser } from "@clerk/clerk-expo";
 
 export default function TabLayout() {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const { isSignedIn } = useSession();
-  const [showHeader, setShowHeader] = useState(false);
+  const [_, setShowHeader] = useState(false);
   const { user } = useUser();
 
   useEffect(() => {
@@ -36,6 +36,8 @@ export default function TabLayout() {
         headerShown: false,
         tabBarStyle: {
           height: 58,
+          borderTopColor: dark ? "#222" : "#fff",
+          borderTopWidth: 1,
         },
       }}
     >
@@ -100,63 +102,27 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="Newpost/newpost"
+        name="Newpost/index"
         options={{
           tabBarStyle: {
             display: "none",
           },
           title: "New Post",
           tabBarShowLabel: false,
-          headerShown: true,
-          header: ({ navigation }) => {
-            return (
-              <SafeAreaView style={{ backgroundColor: "#fff" }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    alignContent: "center",
-                    paddingHorizontal: 16,
-                    paddingVertical: 16,
-                  }}
-                >
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignContent: "center",
-                      alignItems: "center",
-                      gap: 10,
-                    }}
-                  >
-                    <Pressable onPress={() => navigation.goBack()}>
-                      <X size={26} color={"#000"} />
-                    </Pressable>
-                    <Text variant="titleLarge" style={{ fontWeight: "700" }}>
-                      New post
-                    </Text>
-                  </View>
-                  <Pressable>
-                    <EllipsisIcon size={20} color={"#000"} />
-                  </Pressable>
-                </View>
-              </SafeAreaView>
-            );
-          },
+          headerShown: false,
           tabBarIcon: ({ color, focused, size }) => (
             <View
               style={{
                 paddingHorizontal: 18,
                 paddingVertical: 8,
                 borderRadius: 14,
-                backgroundColor: "#eee",
+                backgroundColor: dark ? "#222" : "#eee",
                 borderWidth: 2,
                 borderColor: focused ? "#ddd" : "transparent",
               }}
             >
-              <Plus size={24} color={"#222"} />
+              <Plus size={24} color={dark ? "#ccc" : "#222"} />
             </View>
-            // </View>
           ),
         }}
       />
@@ -193,21 +159,21 @@ export default function TabLayout() {
               >
                 <Image
                   source={{ uri: user?.imageUrl ?? currentUser.profilePicture }}
-                  style={{ width: 36, height: 36 }}
+                  style={{ width: 28, height: 28 }}
                 />
               </View>
             ) : (
               <View
                 style={{
                   backgroundColor: "#EDF1FF",
-                  padding: 9,
+                  padding: 7,
                   borderRadius: 24,
                   borderWidth: focused ? 2 : 1,
                   borderColor: focused ? "#BCC6E0" : "#aCC6E0",
                 }}
               >
                 <Icon
-                  size={22}
+                  size={18}
                   name={focused ? "person" : "person-outline"}
                   color={color}
                 />

@@ -24,6 +24,15 @@ interface ButtonProps {
   style?: StyleProp<ViewStyle>;
   loading?: boolean;
   variant?: ButtonVariant;
+  icon?: React.ReactNode;
+  align?:
+    | "flex-start"
+    | "flex-end"
+    | "space-between"
+    | "space-around"
+    | "center"
+    | "space-evenly";
+  iconPosition?: "right" | "left";
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -33,7 +42,10 @@ const Button: React.FC<ButtonProps> = ({
   disabled,
   loading,
   title,
+  icon,
+  align,
   variant = "default",
+  iconPosition,
 }) => {
   const { dark } = useTheme();
 
@@ -42,9 +54,12 @@ const Button: React.FC<ButtonProps> = ({
       borderRadius: 20,
       width: "100%",
       height: 50,
-      justifyContent: "center",
-      alignItems: "center",
+      justifyContent: align ? align : icon && title ? "flex-start" : "center",
+      alignItems: align ? "flex-start" : "center",
       opacity: loading || disabled ? 0.7 : 1,
+      flexDirection: icon && title ? "row" : "column",
+      paddingHorizontal: 16,
+      gap: 14,
     };
 
     switch (variant) {
@@ -124,11 +139,14 @@ const Button: React.FC<ButtonProps> = ({
           <ActivityIndicator color={getTextColor()} animating={true} />
         ) : (
           <>
+            {iconPosition === "left" ? icon && icon : null}
+            {!iconPosition ? icon && icon : null}
             {title && (
               <Text variant="titleSmall" style={{ color: getTextColor() }}>
                 {title}
               </Text>
             )}
+            {iconPosition === "right" ? icon && icon : null}
             {children}
           </>
         )}
