@@ -12,6 +12,18 @@ export type User = {
   unreadMessages: number;
   profilePicture: string;
   emailVerified: boolean;
+  followedBy: {
+    id: string;
+    followerId: string;
+    followedId: string;
+    createdAt: string;
+  }[];
+  following: {
+    id: string;
+    followerId: string;
+    followedId: string;
+    createdAt: string;
+  }[];
 };
 
 export type Follow = {
@@ -48,8 +60,8 @@ export type Like = {
   userId: string;
   postId: string;
   createdAt: string;
-  user: User;
-  post: Post;
+  user?: User;
+  post?: Post;
 };
 
 export type Timeline = {

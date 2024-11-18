@@ -6,7 +6,7 @@ import { ThemedView } from "@/components/ThemedView";
 import Button from "@/components/ui/button";
 import { formatChatTime } from "@/utils/timeFormater";
 import { Edit, FileIcon, ImageIcon, VideoIcon } from "lucide-react-native";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useThemeColor } from "@/hook/useThemeColor";
 import { uchatData } from "@/utils/udata";
 import { users } from "@/utils/user";
 import { currentUser } from "@/utils/mockAuth";

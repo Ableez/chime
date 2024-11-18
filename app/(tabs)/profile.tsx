@@ -231,6 +231,7 @@ const ProfileScreen = (props: Props) => {
               signOut();
             }}
             title="Sign in"
+            variant="default"
             style={{ marginTop: 32 }}
           />
         </ThemedView>

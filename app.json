@@ -2,14 +2,15 @@
   "expo": {
     "name": "Asterisk",
     "slug": "expo-app",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "orientation": "portrait",
+    "newArchEnabled": true,
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
-      "resizeMode": "cover",
+      "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
@@ -73,7 +74,8 @@
             "./assets/fonts/OpenSans.ttf"
           ]
         }
-      ]
+      ],
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true

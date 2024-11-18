@@ -25,4 +25,4 @@ export const Colors = {
   },
 };
 
-export const BACKEND_ENDPOINT = "https://30db-102-88-83-235.ngrok-free.app";
+export const BACKEND_ENDPOINT = "https://be43-102-89-22-238.ngrok-free.app";

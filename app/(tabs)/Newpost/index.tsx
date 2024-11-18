@@ -7,7 +7,7 @@ import { PostButton } from "@/components/post-button";
 import { Content } from "@/components/post-content";
 import { ThemedView } from "@/components/ThemedView";
 import Button from "@/components/ui/button";
-import { useNewPostLogic } from "@/hooks/useNewPostLogic";
+import { useNewPostLogic } from "@/hook/useNewPostLogic";
 import { useStyles } from "@/utils/styles/style";
 import { useAuth } from "@clerk/clerk-expo";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";

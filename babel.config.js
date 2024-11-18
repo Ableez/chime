@@ -10,7 +10,6 @@ module.exports = function (api) {
       production: {
         plugins: [
           "react-native-paper/babel",
-          "expo-router/babel",
           "react-native-reanimated/plugin",
           ["inline-import", { extensions: [".sql"] }],
         ],

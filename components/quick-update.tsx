@@ -1,4 +1,3 @@
-import { currentUser } from "@/utils/mockAuth";
 import { FlatList, Image, StyleSheet, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import { Camera, LucideImages } from "lucide-react-native";
@@ -101,10 +100,10 @@ const QuickUpdate = () => {
         </View>
       </Link>
       <View style={{ flex: 3, gap: 12 }}>
-        <Link href={"/Newpost/newpost"}>
+        <Link href={"/Newpost/index"}>
           <View>
             <Text variant="titleMedium" style={{ textTransform: "capitalize" }}>
-              {currentUser.username}
+              {user?.username}
             </Text>
             <Text variant="bodyLarge" style={{ color: "#999" }}>
               What's new?

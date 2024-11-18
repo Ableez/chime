@@ -166,6 +166,19 @@ export default function RootLayout() {
                       headerBackButtonMenuEnabled: true,
                     }}
                   />
+
+                  <Stack.Screen
+                    name="profile/[userId]"
+                    options={{
+                      headerShown: false,
+                    }}
+                  />
+                  <Stack.Screen
+                    name="post-detail/[postId]"
+                    options={{
+                      headerShown: false,
+                    }}
+                  />
                 </Stack>
               </BottomSheetModalProvider>
             </GestureHandlerRootView>

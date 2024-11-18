@@ -3,14 +3,17 @@ const { getDefaultConfig } = require("expo/metro-config");
 module.exports = (() => {
   const config = getDefaultConfig(__dirname);
 
-  let { resolver } = config;
+  const { transformer, resolver } = config;
 
-  resolver.sourceExts.push("sql");
+  config.transformer = {
+    ...transformer,
+    babelTransformerPath: require.resolve("react-native-svg-transformer"),
+  };
 
-  resolver = {
+  config.resolver = {
     ...resolver,
     assetExts: resolver.assetExts.filter((ext) => ext !== "svg"),
-    sourceExts: [...resolver.sourceExts, "svg"],
+    sourceExts: [...resolver.sourceExts, "svg", "sql"],
   };
 
   return config;

@@ -17,10 +17,11 @@ const PostMedia = ({ item }: { item: Media[] }) => {
                   : parseInt(item.originalWidth),
                 parseInt(item.originalHeight),
               ])[0],
-              height: shrinkSizeNumber([
-                parseInt(item.originalWidth),
-                parseInt(item.originalHeight),
-              ])[1],
+              height:
+                shrinkSizeNumber([
+                  parseInt(item.originalWidth),
+                  parseInt(item.originalHeight),
+                ])[1] || 500,
               alignItems: "center",
               justifyContent: "center",
               marginRight: 16,
